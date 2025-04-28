@@ -144,21 +144,19 @@ class NeuralNetworkVisualization {
       .attr("r", r)
       .style("fill", (d) => {
         const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-        console.log(c);
-
         return "#" + c + c + c;
       })
       .on("mouseover", (d) => {
-        tooltip.style("visibility", "visible");
+        this.tooltip.style("visibility", "visible");
       })
-      .on("mousemove", (d) => {
-        tooltip
+      .on("mousemove", (ev, d) => {
+        this.tooltip
           .text(d)
-          .style("top", d3.event.pageY - 10 + "px")
-          .style("left", d3.event.pageX + 10 + "px");
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
       })
       .on("mouseout", (d) => {
-        tooltip.style("visibility", "hidden");
+        this.tooltip.style("visibility", "hidden");
       });
 
     this.nnHidden
@@ -170,14 +168,16 @@ class NeuralNetworkVisualization {
         const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
         return "#" + c + c + c;
       })
-      .on("mouseover", (d) => tooltip.style("visibility", "visible"))
-      .on("mousemove", (d) => {
-        return tooltip
+      .on("mouseover", (d) => this.tooltip.style("visibility", "visible"))
+      .on("mousemove", (ev, d) => {
+        this.tooltip
           .text(d)
-          .style("top", d3.event.pageY - 10 + "px")
-          .style("left", d3.event.pageX + 10 + "px");
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
       })
-      .on("mouseout", (d) => tooltip.style("visibility", "hidden"));
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
 
     this.nnOutput
       .data(this.nn.outputLayer)
@@ -188,14 +188,18 @@ class NeuralNetworkVisualization {
         const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
         return "#" + c + c + c;
       })
-      .on("mouseover", (d) => tooltip.style("visibility", "visible"))
-      .on("mousemove", (d) => {
-        return tooltip
-          .text(d)
-          .style("top", d3.event.pageY - 10 + "px")
-          .style("left", d3.event.pageX + 10 + "px");
+      .on("mouseover", (d) => {
+        this.tooltip.style("visibility", "visible");
       })
-      .on("mouseout", (d) => tooltip.style("visibility", "hidden"));
+      .on("mousemove", (ev, d) => {
+        return this.tooltip
+          .text(d)
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
 
     this.inputEdges
       .data(this.nn.firstEdges)
@@ -211,14 +215,18 @@ class NeuralNetworkVisualization {
         return "#" + c + c + c;
       })
       .attr("stroke-width", 3)
-      .on("mouseover", (d) => tooltip.style("visibility", "visible"))
-      .on("mousemove", (d) => {
-        return tooltip
-          .text(d["weight"])
-          .style("top", d3.event.pageY - 10 + "px")
-          .style("left", d3.event.pageX + 10 + "px");
+      .on("mouseover", (d) => {
+        this.tooltip.style("visibility", "visible");
       })
-      .on("mouseout", (d) => tooltip.style("visibility", "hidden"));
+      .on("mousemove", (ev, d) => {
+        this.tooltip
+          .text(d["weight"])
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
 
     this.hiddenEdges
       .data(this.nn.secondEdges)
@@ -234,14 +242,18 @@ class NeuralNetworkVisualization {
         return "#" + c + c + c;
       })
       .attr("stroke-width", 3)
-      .on("mouseover", (d) => tooltip.style("visibility", "visible"))
-      .on("mousemove", (d) => {
-        return tooltip
-          .text(d["weight"])
-          .style("top", d3.event.pageY - 10 + "px")
-          .style("left", d3.event.pageX + 10 + "px");
+      .on("mouseover", (d) => {
+        this.tooltip.style("visibility", "visible");
       })
-      .on("mouseout", (d) => tooltip.style("visibility", "hidden"));
+      .on("mousemove", (ev, d) => {
+        this.tooltip
+          .text(d["weight"])
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
   }
 }
 
