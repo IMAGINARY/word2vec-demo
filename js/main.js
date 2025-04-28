@@ -26,6 +26,7 @@ window.onload = () => {
   detectMsBrowsers();
   w2v.initNetwork();
 
+  console.log(w2v.nn);
   document
     .getElementById("w2v_training")
     .addEventListener("click", () => w2v.train());

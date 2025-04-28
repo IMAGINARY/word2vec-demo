@@ -1,33 +1,8 @@
-// class NeuralNetwork {
-//   constructor(inputSize) {
-//     this.inputLayer = new Array(inputSize).fill(0.0);
-//     this.hiddenLayer = new Array(3).fill(0.0);
-//     this.outputLayer = new Array(30).fill(0.0);
+import { NeuralNetwork } from "./NeuralNetwork.js";
 
-//     this.firstEdges = Array(
-//       this.inputLayer.length * this.hiddenLayer.length
-//     ).fill({});
-//     this.secondEdges = Array(
-//       this.hiddenLayer.length * this.outputLayer.length
-//     ).fill({});
-
-//     this.firstMatrix = [...Array(this.inputLayer.length)].map((x) =>
-//       Array(this.hiddenLayer.length).fill(0)
-//     );
-//     this.secondMatrix = [...Array(this.hiddenLayer.length)].map((x) =>
-//       Array(this.outputLayer.length).fill(0)
-//     );
-
-//     this.prevFirstMatrix = [...Array(this.inputLayer.length)].map((x) =>
-//       Array(this.hiddenLayer.length).fill(0)
-//     ); //last change in weights for momentum
-//     this.prevSecondMatrix = [...Array(this.hiddenLayer.length)].map((x) =>
-//       Array(this.outputLayer.length).fill(0)
-//     ); //last change in weights for momentum
-//   }
+// class NeuralNetworkVisualization {
+//   constructor(nn, cnv) {}
 // }
-
-// const nn = new NeuralNetwork(15);
 
 const scaleNeuron = d3.scale.linear().domain([0.0, 1.0]).range([0, 255]);
 const scaleEdge = d3.scale.linear().domain([-5.5, 5.5]).range([0, 255]);
@@ -48,19 +23,7 @@ var outputLayer = Array(30).fill(0.0);
 var firstEdges = Array(inputLayer.length * hiddenLayer.length).fill({});
 var secondEdges = Array(hiddenLayer.length * outputLayer.length).fill({});
 
-var firstMatrix = [...Array(inputLayer.length)].map((x) =>
-  Array(hiddenLayer.length).fill(0)
-);
-var secondMatrix = [...Array(hiddenLayer.length)].map((x) =>
-  Array(outputLayer.length).fill(0)
-);
-
-var prevFirstMatrix = [...Array(inputLayer.length)].map((x) =>
-  Array(hiddenLayer.length).fill(0)
-); //last change in weights for momentum
-var prevSecondMatrix = [...Array(hiddenLayer.length)].map((x) =>
-  Array(outputLayer.length).fill(0)
-); //last change in weights for momentum
+/* Network visualization */
 
 d3.select("div#w2v-vis > *").remove();
 var nnSvg = d3
@@ -367,6 +330,8 @@ function updateD3(x, y1, y2) {
     });
 }
 
+/* Corpus text visualization */
+
 function highlightWords(x, y1, y2) {
   let corpus = $("#article").html();
   let tmp = corpus.split("<b>");
@@ -393,162 +358,7 @@ function redrawPositions(idx, text) {
   Plotly.redraw("positions");
 }
 
-function sigmoid(x) {
-  return 1 / (1 + Math.exp(-x));
-}
-
-function dsigmoid(y) {
-  return y * (1 - y);
-}
-
-// function dsoftmax(arr) {
-//   let len = arr.length;
-//   let result = new Array(len);
-//   for(let i = 0; i < len; i++) {
-//     result[i] = new Array(len);
-//   }
-//   for(let i = 0; i < len; i++) {
-//     for(let j = 0; j < len; j++) {
-//       if(i === j) {
-//         result[i][j] = arr[i] * (1 - arr[i]);
-//       } else {
-//         result[i][j] = - arr[i] * arr[j];
-//       }
-//     }
-//   }
-//   return result;
-// }
-
-function feedforward(x) {
-  x.forEach(function (ele, index) {
-    inputLayer[index] = ele;
-  });
-
-  for (var i = 0; i < hiddenLayer.length; i++) {
-    var sum = 0.0;
-    for (var j = 0; j < inputLayer.length; j++) {
-      sum += inputLayer[j] * firstMatrix[j][i];
-    }
-    hiddenLayer[i] = sigmoid(sum);
-  }
-
-  // Use sigmoid instead
-  // for (var i=0; i<outputLayer.length; i++) {
-  //   var sum = 0.0;
-  //   for (var j=0; j<hiddenLayer.length; j++) {
-  //     sum += hiddenLayer[j] * secondMatrix[j][i];
-  //   }
-  //   outputLayer[i] = sigmoid(sum);
-  // }
-
-  // do softmax
-  var tmp1st = [];
-  var tmp2nd = [];
-  for (var i = 0; i < outputLayer.length; i++) {
-    var sum = 0.0;
-    for (var j = 0; j < hiddenLayer.length; j++) {
-      sum += hiddenLayer[j] * secondMatrix[j][i];
-    }
-
-    if (i < oneHotSize) {
-      tmp1st.push(sum);
-    } else {
-      tmp2nd.push(sum);
-    }
-  }
-
-  const res1st = softmax(tmp1st);
-  const res2nd = softmax(tmp2nd);
-  for (var i = 0; i < outputLayer.length; i++) {
-    if (i < oneHotSize) {
-      outputLayer[i] = res1st[0][i] / res1st[1];
-    } else {
-      outputLayer[i] = res2nd[0][i - oneHotSize] / res2nd[1];
-    }
-  }
-  console.log(
-    `The sum of 2 softmax result is ${outputLayer.reduce(
-      (partialSum, x) => partialSum + x,
-      0.0
-    )}`
-  );
-}
-
-function softmax(tmp) {
-  tmp = tmp.map((x) => {
-    const exp = Math.exp(x);
-    return exp == Infinity ? Number.MAX_VALUE : exp;
-  });
-
-  var expSum = tmp.reduce((partialSum, x) => partialSum + x, 0.0);
-  expSum = expSum == Infinity ? Number.MAX_VALUE : expSum;
-
-  return [tmp, expSum];
-}
-
-function backpropagate(y, N = 0.75, M = 0.1) {
-  var outputDeltas = Array(outputLayer.length).fill(0.0);
-  var totalErrors = 0.0;
-  y.forEach(function (ele, index) {
-    const error = ele - outputLayer[index];
-    totalErrors += Math.sqrt(Math.pow(error, 2));
-
-    // outputDeltas[index] = error * dsigmoid(outputLayer[index]);
-    outputDeltas[index] = error;
-  });
-
-  // The source code of word2vec does not do dsoftmax
-  // var softmaxDerivative = dsoftmax(outputLayer);
-  // var gradient = Array(outputDeltas.length).fill(0.0);
-  // for (var i=0; i<softmaxDerivative.length; i++) {
-  //   for (var j=0; j<softmaxDerivative[i].length; ++j) {
-  //     gradient[i] += outputDeltas[i] * softmaxDerivative[i][j];
-  //   }
-  // }
-
-  // console.log(gradient);
-
-  var hiddenDeltas = Array(hiddenLayer.length).fill(0.0);
-  for (var i = 0; i < hiddenLayer.length; i++) {
-    var error = 0.0;
-    for (var j = 0; j < outputLayer.length; j++) {
-      // error += gradient[j] * secondMatrix[i][j];
-      error += outputDeltas[j] * secondMatrix[i][j];
-    }
-
-    hiddenDeltas[i] = dsigmoid(hiddenLayer[i]) * error;
-  }
-
-  for (var i = 0; i < hiddenLayer.length; i++) {
-    for (var j = 0; j < outputLayer.length; j++) {
-      const change = outputDeltas[j] * hiddenLayer[i];
-
-      const index = secondEdges.findIndex(
-        (edge) => edge.i === i && edge.j === j
-      );
-      secondEdges[index].weight += N * change + M * prevSecondMatrix[i][j];
-
-      secondMatrix[i][j] += N * change + M * prevSecondMatrix[i][j];
-      prevSecondMatrix[i][j] = change;
-    }
-  }
-
-  for (var i = 0; i < inputLayer.length; i++) {
-    for (var j = 0; j < hiddenLayer.length; j++) {
-      const change = hiddenDeltas[j] * inputLayer[i];
-
-      const index = firstEdges.findIndex(
-        (edge) => edge.i === i && edge.j === j
-      );
-      firstEdges[index].weight += N * change + M * prevFirstMatrix[i][j];
-
-      firstMatrix[i][j] += N * change + M * prevFirstMatrix[i][j];
-      prevFirstMatrix[i][j] = change;
-    }
-  }
-
-  return totalErrors / parseFloat(y.length);
-}
+/*  Word2Vec data preparation */
 
 function clean(text) {
   // corpus = corpus.replace(/\n/g, ' ');
@@ -594,9 +404,13 @@ function getOneHotVector(corpus) {
   return oneHotVectors;
 }
 
+/* Error graph visualization */
+
 function visualizeError(iter, total_iter, errors) {
   $("#w2v_epoch").text(`epoch: ${iter} / ${total_iter}, error: ${errors}`);
 }
+
+/* 3D visualization */
 
 function runRotation() {
   rotate("scene", Math.PI / 1440);
@@ -632,30 +446,78 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-var w2v = (function () {
-  let publicScope = {};
-  publicScope.train = async function (iter = 20) {
+class Word2Vector {
+  constructor() {
+    // this.corpus = clean($("#article").text());
+    // console.log(this.corpus);
+    // this.vectors = getOneHotVector(corpus);
+
+    this.nn = new NeuralNetwork(15);
+  }
+
+  initNetwork = function () {
+    console.log("Initializing network");
+    this.corpus = clean($("#article").text());
+    // console.log(corpus);
+    this.vectors = getOneHotVector(this.corpus);
+    this.data = getTrainingData(this.corpus);
+
+    for (var x = 0; x < this.nn.inputLayer.length; x++) {
+      for (var y = 0; y < this.nn.hiddenLayer.length; y++) {
+        const w = Math.random();
+        this.nn.firstEdges[x * this.nn.hiddenLayer.length + y] = {
+          i: x,
+          j: y,
+          weight: w,
+        };
+        this.nn.firstMatrix[x][y] = w;
+      }
+    }
+
+    for (var x = 0; x < this.nn.hiddenLayer.length; x++) {
+      for (var y = 0; y < this.nn.outputLayer.length; y++) {
+        const w = Math.random();
+        this.nn.secondEdges[x * this.nn.outputLayer.length + y] = {
+          i: x,
+          j: y,
+          weight: w,
+        };
+        this.nn.secondMatrix[x][y] = w;
+      }
+    }
+  };
+
+  train = async function (iter = 20) {
     $("#w2v_training").prop("disabled", true);
 
-    console.log("Corpus: ", corpus);
-    console.log("Vectors: ", vectors);
-    console.log("Data: ", data);
+    console.log("Corpus: ", this.corpus);
+    console.log("Vectors: ", this.vectors);
+    console.log("Data: ", this.data);
 
     for (var it = 0; it < iter; it++) {
       var errors = 0.0;
-      for (var i = 0; i < data.length; i++) {
-        feedforward(vectors[data[i].x]);
-        const y = vectors[data[i].y[0]].concat(vectors[data[i].y[1]]);
-        errors += backpropagate(y);
-        updateD3(data[i].x, data[i].y[0], data[i].y[1]);
+      for (var i = 0; i < this.data.length; i++) {
+        this.nn.feedforward(this.vectors[this.data[i].x]);
+        const y = this.vectors[this.data[i].y[0]].concat(
+          this.vectors[this.data[i].y[1]]
+        );
+        errors += this.nn.backpropagate(y);
 
-        const index = Object.keys(vectors).indexOf(data[i].x);
-        redrawPositions(index, data[i].x);
+        inputLayer = this.nn.inputLayer;
+        hiddenLayer = this.nn.hiddenLayer;
+        outputLayer = this.nn.outputLayer;
+        firstEdges = this.nn.firstEdges;
+        secondEdges = this.nn.secondEdges;
 
-        highlightWords(data[i].x, data[i].y[0], data[i].y[1]);
+        updateD3(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
+
+        const index = Object.keys(this.vectors).indexOf(this.data[i].x);
+        redrawPositions(index, this.data[i].x);
+
+        highlightWords(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
         await sleep(65);
       }
-      const avgErrors = errors / parseFloat(data.length);
+      const avgErrors = errors / parseFloat(this.data.length);
       visualizeError(it + 1, iter, avgErrors);
       updateCharts(it + 1, avgErrors);
       console.log(`Errors in ${it} epoch: ${avgErrors}`);
@@ -663,32 +525,8 @@ var w2v = (function () {
 
     runRotation();
   };
+}
 
-  publicScope.initNetwork = function () {
-    console.log("Initializing network");
-    corpus = clean($("#article").text());
-    // console.log(corpus);
-    vectors = getOneHotVector(corpus);
-    data = getTrainingData(corpus);
-
-    for (var x = 0; x < inputLayer.length; x++) {
-      for (var y = 0; y < hiddenLayer.length; y++) {
-        const w = Math.random();
-        firstEdges[x * hiddenLayer.length + y] = { i: x, j: y, weight: w };
-        firstMatrix[x][y] = w;
-      }
-    }
-
-    for (var x = 0; x < hiddenLayer.length; x++) {
-      for (var y = 0; y < outputLayer.length; y++) {
-        const w = Math.random();
-        secondEdges[x * outputLayer.length + y] = { i: x, j: y, weight: w };
-        secondMatrix[x][y] = w;
-      }
-    }
-  };
-
-  return publicScope;
-})();
+const w2v = new Word2Vector();
 
 export { w2v };
