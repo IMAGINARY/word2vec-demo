@@ -2,6 +2,8 @@ class NeuralNetwork {
   constructor(inputSize) {
     console.log("Initializing Neural Network");
     console.log("inputSize: ", inputSize);
+    this.oneHotSize = inputSize;
+
     this.inputLayer = new Array(inputSize).fill(0.0);
     this.hiddenLayer = new Array(3).fill(0.0);
     this.outputLayer = new Array(30).fill(0.0);

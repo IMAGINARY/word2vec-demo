@@ -1,20 +1,93 @@
 import { NeuralNetwork } from "./NeuralNetwork.js";
+import { NeuralNetworkVisualization } from "./nnViz.js";
 
-// class NeuralNetworkVisualization {
-//   constructor(nn, cnv) {}
-// }
+class Word2Vector {
+  constructor() {
+    // this.corpus = clean($("#article").text());
+    // console.log(this.corpus);
+    // this.vectors = getOneHotVector(corpus);
 
-const scaleNeuron = d3.scale.linear().domain([0.0, 1.0]).range([0, 255]);
-const scaleEdge = d3.scale.linear().domain([-5.5, 5.5]).range([0, 255]);
+    this.nn = new NeuralNetwork(15);
+    this.nnViz = new NeuralNetworkVisualization(this.nn);
+  }
 
-const width = $("#w2v-vis").parent().width();
-const height = 976;
-const r = 10;
+  initNetwork = function () {
+    console.log("Initializing network");
+    this.corpus = clean($("#article").text());
+    // console.log(corpus);
+    this.vectors = getOneHotVector(this.corpus);
+    this.data = getTrainingData(this.corpus);
+
+    for (var x = 0; x < this.nn.inputLayer.length; x++) {
+      for (var y = 0; y < this.nn.hiddenLayer.length; y++) {
+        const w = Math.random();
+        this.nn.firstEdges[x * this.nn.hiddenLayer.length + y] = {
+          i: x,
+          j: y,
+          weight: w,
+        };
+        this.nn.firstMatrix[x][y] = w;
+      }
+    }
+
+    for (var x = 0; x < this.nn.hiddenLayer.length; x++) {
+      for (var y = 0; y < this.nn.outputLayer.length; y++) {
+        const w = Math.random();
+        this.nn.secondEdges[x * this.nn.outputLayer.length + y] = {
+          i: x,
+          j: y,
+          weight: w,
+        };
+        this.nn.secondMatrix[x][y] = w;
+      }
+    }
+  };
+
+  train = async function (iter = 20) {
+    $("#w2v_training").prop("disabled", true);
+
+    console.log("Corpus: ", this.corpus);
+    console.log("Vectors: ", this.vectors);
+    console.log("Data: ", this.data);
+
+    for (var it = 0; it < iter; it++) {
+      var errors = 0.0;
+      for (var i = 0; i < this.data.length; i++) {
+        this.nn.feedforward(this.vectors[this.data[i].x]);
+        const y = this.vectors[this.data[i].y[0]].concat(
+          this.vectors[this.data[i].y[1]]
+        );
+        errors += this.nn.backpropagate(y);
+
+        inputLayer = this.nn.inputLayer;
+        hiddenLayer = this.nn.hiddenLayer;
+        outputLayer = this.nn.outputLayer;
+        firstEdges = this.nn.firstEdges;
+        secondEdges = this.nn.secondEdges;
+
+        this.nnViz.update(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
+
+        const index = Object.keys(this.vectors).indexOf(this.data[i].x);
+        redrawPositions(index, this.data[i].x);
+
+        highlightWords(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
+        await sleep(65);
+      }
+      const avgErrors = errors / parseFloat(this.data.length);
+      visualizeError(it + 1, iter, avgErrors);
+      updateCharts(it + 1, avgErrors);
+      console.log(`Errors in ${it} epoch: ${avgErrors}`);
+    }
+
+    runRotation();
+  };
+}
+
+const w2v = new Word2Vector();
+
+///////
+
 const oneHotSize = 15; // TO FIX.
-
-var corpus = "";
-var vectors = {};
-var data = [];
 
 var inputLayer = Array(oneHotSize).fill(0.0);
 var hiddenLayer = Array(3).fill(0.0);
@@ -22,75 +95,6 @@ var outputLayer = Array(30).fill(0.0);
 
 var firstEdges = Array(inputLayer.length * hiddenLayer.length).fill({});
 var secondEdges = Array(hiddenLayer.length * outputLayer.length).fill({});
-
-/* Network visualization */
-
-d3.select("div#w2v-vis > *").remove();
-var nnSvg = d3
-  .select("div#w2v-vis")
-  .append("div")
-  .append("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .attr("style", "background-color: #ADD7F6;");
-
-var textInput = nnSvg.append("g").classed("input-text", true).append("text");
-
-var textOutput1 = nnSvg.append("g").classed("input-text", true).append("text");
-
-var textOutput2 = nnSvg.append("g").classed("input-text", true).append("text");
-
-var tooltip = d3
-  .select("body")
-  .append("div")
-  .style("padding", "5px")
-  .style("background-color", "#84DCC6")
-  .style("color", "white")
-  .style("font-size", "16px")
-  .style("position", "absolute")
-  .style("z-index", "10")
-  .style("visibility", "hidden")
-  .text("");
-
-var nnInput = nnSvg
-  .selectAll("g.input-neuron")
-  .data(inputLayer)
-  .enter()
-  .append("g")
-  .classed("input-neuron", true)
-  .append("circle");
-
-var nnHidden = nnSvg
-  .selectAll("g.hidden1-neuron")
-  .data(hiddenLayer)
-  .enter()
-  .append("g")
-  .classed("hidden1-neuron", true)
-  .append("circle");
-
-var nnOutput = nnSvg
-  .selectAll("g.hidden2-neuron")
-  .data(outputLayer)
-  .enter()
-  .append("g")
-  .classed("hidden2-neuron", true)
-  .append("circle");
-
-var inputEdges = nnSvg
-  .selectAll("g.input-edge")
-  .data(firstEdges)
-  .enter()
-  .append("g")
-  .classed("input-edge", true)
-  .append("line");
-
-var hiddenEdges = nnSvg
-  .selectAll("g.hidden-edge")
-  .data(secondEdges)
-  .enter()
-  .append("g")
-  .classed("hidden-edge", true)
-  .append("line");
 
 $("#nn_errors").width = $("#article").width();
 $("#nn_errors").height = $("#article").width();
@@ -151,183 +155,12 @@ const layout = {
 let divPos = document.getElementById("positions");
 Plotly.newPlot(divPos, [trace], layout, { displayModeBar: false });
 
-function getPosY(i, len) {
-  const mid = height / 2;
-  const step = 15;
-  const halfStep = step / 2;
-  const numberOfNeuron = len / 2;
-  const startPos = mid - ((numberOfNeuron + numberOfNeuron) * step + halfStep);
-
-  return startPos + i * 2 * step;
-}
-
 function updateCharts(iter, errors) {
   chart.data.labels.push(iter);
   chart.data.datasets.forEach((dataset) => {
     dataset.data.push(errors);
   });
   chart.update();
-}
-
-function updateD3(x, y1, y2) {
-  const sizeOfText = 24;
-  textInput
-    .text(x)
-    .attr("x", 0)
-    .attr("y", getPosY(0, 1) + sizeOfText / 2)
-    .style("font-size", sizeOfText.toString() + "px")
-    .style("color", "black");
-
-  textOutput1
-    .text(y1)
-    .attr("x", 350)
-    .attr("y", getPosY(oneHotSize / 2, oneHotSize * 2) + sizeOfText / 2)
-    .style("font-size", sizeOfText.toString() + "px")
-    .style("color", "black");
-
-  textOutput2
-    .text(y2)
-    .attr("x", 350)
-    .attr(
-      "y",
-      getPosY(oneHotSize + oneHotSize / 2, oneHotSize * 2) + sizeOfText / 2
-    )
-    .style("font-size", sizeOfText.toString() + "px")
-    .style("color", "black");
-
-  nnInput.data(inputLayer);
-  nnInput
-    .attr("cx", 125)
-    .attr("cy", function (d, i) {
-      return getPosY(i, inputLayer.length);
-    })
-    .attr("r", r)
-    .style("fill", function (d) {
-      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-      return "#" + c + c + c;
-    })
-    .on("mouseover", function (d) {
-      return tooltip.style("visibility", "visible");
-    })
-    .on("mousemove", function (d) {
-      return tooltip
-        .text(d)
-        .style("top", d3.event.pageY - 10 + "px")
-        .style("left", d3.event.pageX + 10 + "px");
-    })
-    .on("mouseout", function (d) {
-      return tooltip.style("visibility", "hidden");
-    });
-
-  nnHidden.data(hiddenLayer);
-  nnHidden
-    .attr("cx", 225)
-    .attr("cy", function (d, i) {
-      return getPosY(i, hiddenLayer.length);
-    })
-    .attr("r", r)
-    .style("fill", function (d) {
-      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-      return "#" + c + c + c;
-    })
-    .on("mouseover", function (d) {
-      return tooltip.style("visibility", "visible");
-    })
-    .on("mousemove", function (d) {
-      return tooltip
-        .text(d)
-        .style("top", d3.event.pageY - 10 + "px")
-        .style("left", d3.event.pageX + 10 + "px");
-    })
-    .on("mouseout", function (d) {
-      return tooltip.style("visibility", "hidden");
-    });
-
-  nnOutput.data(outputLayer);
-  nnOutput
-    .attr("cx", 325)
-    .attr("cy", function (d, i) {
-      return getPosY(i, outputLayer.length);
-    })
-    .attr("r", r)
-    .style("fill", function (d) {
-      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-      return "#" + c + c + c;
-    })
-    .on("mouseover", function (d) {
-      return tooltip.style("visibility", "visible");
-    })
-    .on("mousemove", function (d) {
-      return tooltip
-        .text(d)
-        .style("top", d3.event.pageY - 10 + "px")
-        .style("left", d3.event.pageX + 10 + "px");
-    })
-    .on("mouseout", function (d) {
-      return tooltip.style("visibility", "hidden");
-    });
-
-  inputEdges.data(firstEdges);
-  inputEdges
-    .attr("x1", 125 + r)
-    .attr("y1", function (d) {
-      return getPosY(d["i"], inputLayer.length);
-    })
-    .attr("x2", 225 - r)
-    .attr("y2", function (d) {
-      return getPosY(d["j"], hiddenLayer.length);
-    })
-    .attr("stroke", function (d) {
-      // console.log(d["weight"]);
-      const c = Math.round(scaleEdge(d["weight"]))
-        .toString(16)
-        .padStart(2, "0");
-      return "#" + c + c + c;
-    })
-    .attr("stroke-width", 3)
-    .on("mouseover", function (d) {
-      return tooltip.style("visibility", "visible");
-    })
-    .on("mousemove", function (d) {
-      return tooltip
-        .text(d["weight"])
-        .style("top", d3.event.pageY - 10 + "px")
-        .style("left", d3.event.pageX + 10 + "px");
-    })
-    .on("mouseout", function (d) {
-      return tooltip.style("visibility", "hidden");
-    });
-
-  hiddenEdges.data(secondEdges);
-  hiddenEdges
-    .attr("x1", 225 + r)
-    .attr("y1", function (d) {
-      return getPosY(d["i"], hiddenLayer.length);
-    })
-    .attr("x2", 325 - r)
-    .attr("y2", function (d) {
-      return getPosY(d["j"], outputLayer.length);
-    })
-    .attr("stroke", function (d) {
-      // console.log(d["weight"]);
-      const c = Math.round(scaleEdge(d["weight"]))
-        .toString(16)
-        .padStart(2, "0");
-      return "#" + c + c + c;
-    })
-    .attr("stroke-width", 3)
-    .on("mouseover", function (d) {
-      return tooltip.style("visibility", "visible");
-    })
-    .on("mousemove", function (d) {
-      return tooltip
-        .text(d["weight"])
-        .style("top", d3.event.pageY - 10 + "px")
-        .style("left", d3.event.pageX + 10 + "px");
-    })
-    .on("mouseout", function (d) {
-      return tooltip.style("visibility", "hidden");
-    });
 }
 
 /* Corpus text visualization */
@@ -445,88 +278,5 @@ function rtz2xyz(rtz) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-class Word2Vector {
-  constructor() {
-    // this.corpus = clean($("#article").text());
-    // console.log(this.corpus);
-    // this.vectors = getOneHotVector(corpus);
-
-    this.nn = new NeuralNetwork(15);
-  }
-
-  initNetwork = function () {
-    console.log("Initializing network");
-    this.corpus = clean($("#article").text());
-    // console.log(corpus);
-    this.vectors = getOneHotVector(this.corpus);
-    this.data = getTrainingData(this.corpus);
-
-    for (var x = 0; x < this.nn.inputLayer.length; x++) {
-      for (var y = 0; y < this.nn.hiddenLayer.length; y++) {
-        const w = Math.random();
-        this.nn.firstEdges[x * this.nn.hiddenLayer.length + y] = {
-          i: x,
-          j: y,
-          weight: w,
-        };
-        this.nn.firstMatrix[x][y] = w;
-      }
-    }
-
-    for (var x = 0; x < this.nn.hiddenLayer.length; x++) {
-      for (var y = 0; y < this.nn.outputLayer.length; y++) {
-        const w = Math.random();
-        this.nn.secondEdges[x * this.nn.outputLayer.length + y] = {
-          i: x,
-          j: y,
-          weight: w,
-        };
-        this.nn.secondMatrix[x][y] = w;
-      }
-    }
-  };
-
-  train = async function (iter = 20) {
-    $("#w2v_training").prop("disabled", true);
-
-    console.log("Corpus: ", this.corpus);
-    console.log("Vectors: ", this.vectors);
-    console.log("Data: ", this.data);
-
-    for (var it = 0; it < iter; it++) {
-      var errors = 0.0;
-      for (var i = 0; i < this.data.length; i++) {
-        this.nn.feedforward(this.vectors[this.data[i].x]);
-        const y = this.vectors[this.data[i].y[0]].concat(
-          this.vectors[this.data[i].y[1]]
-        );
-        errors += this.nn.backpropagate(y);
-
-        inputLayer = this.nn.inputLayer;
-        hiddenLayer = this.nn.hiddenLayer;
-        outputLayer = this.nn.outputLayer;
-        firstEdges = this.nn.firstEdges;
-        secondEdges = this.nn.secondEdges;
-
-        updateD3(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
-
-        const index = Object.keys(this.vectors).indexOf(this.data[i].x);
-        redrawPositions(index, this.data[i].x);
-
-        highlightWords(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
-        await sleep(65);
-      }
-      const avgErrors = errors / parseFloat(this.data.length);
-      visualizeError(it + 1, iter, avgErrors);
-      updateCharts(it + 1, avgErrors);
-      console.log(`Errors in ${it} epoch: ${avgErrors}`);
-    }
-
-    runRotation();
-  };
-}
-
-const w2v = new Word2Vector();
 
 export { w2v };
