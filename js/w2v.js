@@ -1,5 +1,6 @@
 import { NeuralNetwork } from "./NeuralNetwork.js";
 import { NeuralNetworkVisualization } from "./nnViz.js";
+import { VectorVisualization } from "./vectorViz.js";
 
 class Word2Vector {
   constructor() {
@@ -9,6 +10,7 @@ class Word2Vector {
 
     this.nn = new NeuralNetwork(15);
     this.nnViz = new NeuralNetworkVisualization(this.nn);
+    this.vecViz = new VectorVisualization(this.nn);
   }
 
   initNetwork = function () {
@@ -59,16 +61,10 @@ class Word2Vector {
         );
         errors += this.nn.backpropagate(y);
 
-        inputLayer = this.nn.inputLayer;
-        hiddenLayer = this.nn.hiddenLayer;
-        outputLayer = this.nn.outputLayer;
-        firstEdges = this.nn.firstEdges;
-        secondEdges = this.nn.secondEdges;
-
         this.nnViz.update(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
 
         const index = Object.keys(this.vectors).indexOf(this.data[i].x);
-        redrawPositions(index, this.data[i].x);
+        this.vecViz.redrawPositions(index, this.data[i].x);
 
         highlightWords(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
         await sleep(65);
@@ -79,7 +75,7 @@ class Word2Vector {
       console.log(`Errors in ${it} epoch: ${avgErrors}`);
     }
 
-    runRotation();
+    this.vecViz.runRotation();
   };
 }
 
@@ -88,13 +84,6 @@ const w2v = new Word2Vector();
 ///////
 
 const oneHotSize = 15; // TO FIX.
-
-var inputLayer = Array(oneHotSize).fill(0.0);
-var hiddenLayer = Array(3).fill(0.0);
-var outputLayer = Array(30).fill(0.0);
-
-var firstEdges = Array(inputLayer.length * hiddenLayer.length).fill({});
-var secondEdges = Array(hiddenLayer.length * outputLayer.length).fill({});
 
 $("#nn_errors").width = $("#article").width();
 $("#nn_errors").height = $("#article").width();
@@ -122,39 +111,6 @@ let chart = new Chart($("#nn_errors"), {
   },
 });
 
-var trace = {
-  x: Array(oneHotSize).fill(0.0),
-  y: Array(oneHotSize).fill(0.0),
-  z: Array(oneHotSize).fill(0.0),
-  text: Array(oneHotSize).fill(""),
-  mode: "markers",
-  marker: {
-    size: 5,
-    line: {
-      color: "rgba(217, 217, 217, 0.14)",
-      width: 0.5,
-    },
-    color: "#84DCC6",
-    opacity: 0.8,
-  },
-  type: "scatter3d",
-};
-
-const layout = {
-  dragmode: true,
-  height: $("#article").width(),
-  width: $("#article").width(),
-  margin: { l: 0, r: 0, b: 0, t: 0 },
-  scene: {
-    camera: {
-      eye: { x: 1, y: 1, z: 1 },
-    },
-  },
-};
-
-let divPos = document.getElementById("positions");
-Plotly.newPlot(divPos, [trace], layout, { displayModeBar: false });
-
 function updateCharts(iter, errors) {
   chart.data.labels.push(iter);
   chart.data.datasets.forEach((dataset) => {
@@ -181,14 +137,6 @@ function highlightWords(x, y1, y2) {
   }
 
   $("#article").html(tmp[0] + tmp[1]);
-}
-
-function redrawPositions(idx, text) {
-  trace.x[idx] = hiddenLayer[0];
-  trace.y[idx] = hiddenLayer[1];
-  trace.z[idx] = hiddenLayer[2];
-  trace.text[idx] = text;
-  Plotly.redraw("positions");
 }
 
 /*  Word2Vec data preparation */
@@ -241,38 +189,6 @@ function getOneHotVector(corpus) {
 
 function visualizeError(iter, total_iter, errors) {
   $("#w2v_epoch").text(`epoch: ${iter} / ${total_iter}, error: ${errors}`);
-}
-
-/* 3D visualization */
-
-function runRotation() {
-  rotate("scene", Math.PI / 1440);
-  requestAnimationFrame(runRotation);
-}
-
-function rotate(id, angle) {
-  var eye0 = divPos.layout[id].camera.eye;
-  var rtz = xyz2rtz(eye0);
-  rtz.t += angle;
-
-  var eye1 = rtz2xyz(rtz);
-  Plotly.relayout(divPos, id + ".camera.eye", eye1);
-}
-
-function xyz2rtz(xyz) {
-  return {
-    r: Math.sqrt(xyz.x * xyz.x + xyz.y * xyz.y),
-    t: Math.atan2(xyz.y, xyz.x),
-    z: xyz.z,
-  };
-}
-
-function rtz2xyz(rtz) {
-  return {
-    x: rtz.r * Math.cos(rtz.t),
-    y: rtz.r * Math.sin(rtz.t),
-    z: rtz.z,
-  };
 }
 
 function sleep(ms) {
