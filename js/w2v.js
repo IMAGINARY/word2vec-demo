@@ -1,6 +1,7 @@
 import { NeuralNetwork } from "./NeuralNetwork.js";
 import { NeuralNetworkVisualization } from "./nnViz.js";
 import { VectorVisualization } from "./vectorViz.js";
+import { ErrorChart, visualizeError } from "./errorViz.js";
 
 class Word2Vector {
   constructor() {
@@ -11,6 +12,7 @@ class Word2Vector {
     this.nn = new NeuralNetwork(15);
     this.nnViz = new NeuralNetworkVisualization(this.nn);
     this.vecViz = new VectorVisualization(this.nn);
+    this.errViz = new ErrorChart();
   }
 
   initNetwork = function () {
@@ -71,7 +73,7 @@ class Word2Vector {
       }
       const avgErrors = errors / parseFloat(this.data.length);
       visualizeError(it + 1, iter, avgErrors);
-      updateCharts(it + 1, avgErrors);
+      this.errViz.updateCharts(it + 1, avgErrors);
       console.log(`Errors in ${it} epoch: ${avgErrors}`);
     }
 
@@ -84,40 +86,6 @@ const w2v = new Word2Vector();
 ///////
 
 const oneHotSize = 15; // TO FIX.
-
-$("#nn_errors").width = $("#article").width();
-$("#nn_errors").height = $("#article").width();
-let chart = new Chart($("#nn_errors"), {
-  type: "line",
-  data: {
-    labels: [],
-    datasets: [
-      {
-        label: "Error",
-        data: [],
-        backgroundColor: "#ADD7F6",
-        borderColor: "#0275D8",
-        borderWidth: 1,
-        fill: false,
-      },
-    ],
-  },
-  options: {
-    elements: {
-      line: {
-        tension: 0,
-      },
-    },
-  },
-});
-
-function updateCharts(iter, errors) {
-  chart.data.labels.push(iter);
-  chart.data.datasets.forEach((dataset) => {
-    dataset.data.push(errors);
-  });
-  chart.update();
-}
 
 /* Corpus text visualization */
 
@@ -183,12 +151,6 @@ function getOneHotVector(corpus) {
   }
 
   return oneHotVectors;
-}
-
-/* Error graph visualization */
-
-function visualizeError(iter, total_iter, errors) {
-  $("#w2v_epoch").text(`epoch: ${iter} / ${total_iter}, error: ${errors}`);
 }
 
 function sleep(ms) {
