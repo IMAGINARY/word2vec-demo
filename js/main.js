@@ -1,4 +1,4 @@
-import { w2v } from "./w2v.js";
+import { Word2Vector } from "./w2v.js";
 
 document.getElementById(
   "article"
@@ -24,6 +24,9 @@ function detectMsBrowsers() {
 
 window.onload = () => {
   detectMsBrowsers();
+
+  const w2v = new Word2Vector();
+
   w2v.initNetwork();
 
   console.log(w2v.nn);

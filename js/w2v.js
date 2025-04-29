@@ -2,6 +2,9 @@ import { NeuralNetwork } from "./NeuralNetwork.js";
 import { NeuralNetworkVisualization } from "./nnViz.js";
 import { VectorVisualization } from "./vectorViz.js";
 import { ErrorChart, visualizeError } from "./errorViz.js";
+import { highlightWords } from "./textViz.js";
+
+const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 class Word2Vector {
   constructor() {
@@ -9,18 +12,20 @@ class Word2Vector {
     // console.log(this.corpus);
     // this.vectors = getOneHotVector(corpus);
 
+    // const oneHotSize = 15; // TO FIX.
+
     this.nn = new NeuralNetwork(15);
     this.nnViz = new NeuralNetworkVisualization(this.nn);
     this.vecViz = new VectorVisualization(this.nn);
     this.errViz = new ErrorChart();
   }
 
-  initNetwork = function () {
+  initNetwork() {
     console.log("Initializing network");
-    this.corpus = clean($("#article").text());
+    this.corpus = this.clean($("#article").text());
     // console.log(corpus);
-    this.vectors = getOneHotVector(this.corpus);
-    this.data = getTrainingData(this.corpus);
+    this.vectors = this.getOneHotVector(this.corpus);
+    this.data = this.getTrainingData(this.corpus);
 
     for (var x = 0; x < this.nn.inputLayer.length; x++) {
       for (var y = 0; y < this.nn.hiddenLayer.length; y++) {
@@ -45,9 +50,9 @@ class Word2Vector {
         this.nn.secondMatrix[x][y] = w;
       }
     }
-  };
+  }
 
-  train = async function (iter = 20) {
+  async train(iter = 20) {
     $("#w2v_training").prop("disabled", true);
 
     console.log("Corpus: ", this.corpus);
@@ -78,83 +83,51 @@ class Word2Vector {
     }
 
     this.vecViz.runRotation();
-  };
-}
-
-const w2v = new Word2Vector();
-
-///////
-
-const oneHotSize = 15; // TO FIX.
-
-/* Corpus text visualization */
-
-function highlightWords(x, y1, y2) {
-  let corpus = $("#article").html();
-  let tmp = corpus.split("<b>");
-
-  tmp[0] = tmp[0].replace(/<[^>]*>?/gm, "");
-  tmp[1] = tmp[1].replace(/<[^>]*>?/gm, "");
-
-  if (y1 == "") {
-    tmp[0] = tmp[0].replace(`${x} ${y2}`, `<b>${x} ${y2}</b>`);
-  } else if (y2 == "") {
-    tmp[1] = tmp[1].replace(`${y1} ${x}`, `<b>${y1} ${x}</b>`);
-  } else {
-    tmp[1] = tmp[1].replace(`${y1} ${x} ${y2}`, `<b>${y1} ${x} ${y2}</b>`);
   }
 
-  $("#article").html(tmp[0] + tmp[1]);
-}
+  getTrainingData(corpus, halfWinSize = 1) {
+    let data = [];
+    for (let i = 0; i < corpus.length; i++) {
+      let tmp = { x: "", y: [] };
+      for (let j = i - halfWinSize; j < i + halfWinSize + 1; j++) {
+        if (j < 0 || j >= corpus.length) {
+          tmp.y.push("");
+        } else if (j == i) {
+          tmp.x = corpus[j];
+        } else {
+          tmp.y.push(corpus[j]);
+        }
+      }
+      data.push(tmp);
+    }
+    return data;
+  }
 
-/*  Word2Vec data preparation */
+  clean(text) {
+    // corpus = corpus.replace(/\n/g, ' ');
+    // corpus = corpus.replace(/  /g, '');
+    // corpus = corpus.replace(/\./g, '');
+    // corpus = corpus.replace(/,/g, '');
 
-function clean(text) {
-  // corpus = corpus.replace(/\n/g, ' ');
-  // corpus = corpus.replace(/  /g, '');
-  // corpus = corpus.replace(/\./g, '');
-  // corpus = corpus.replace(/,/g, '');
+    return text.split(" ").filter((v, i, a) => v != "");
+  }
 
-  return text.split(" ").filter((v, i, a) => v != "");
-}
-
-function getTrainingData(corpus, halfWinSize = 1) {
-  let data = [];
-  for (let i = 0; i < corpus.length; i++) {
-    let tmp = { x: "", y: [] };
-    for (let j = i - halfWinSize; j < i + halfWinSize + 1; j++) {
-      if (j < 0 || j >= corpus.length) {
-        tmp.y.push("");
-      } else if (j == i) {
-        tmp.x = corpus[j];
+  getOneHotVector(corpus) {
+    const unique = corpus.filter((v, i, a) => a.indexOf(v) === i);
+    const total = unique.length;
+    let oneHotVectors = {};
+    for (let i = 0; i < total + 1; i++) {
+      let vector = Array(total + 1).fill(0);
+      vector[i] = 1;
+      if (i == total) {
+        oneHotVectors[""] = vector;
       } else {
-        tmp.y.push(corpus[j]);
+        oneHotVectors[unique[i]] = vector;
       }
     }
-    data.push(tmp);
+
+    return oneHotVectors;
   }
-  return data;
 }
 
-function getOneHotVector(corpus) {
-  const unique = corpus.filter((v, i, a) => a.indexOf(v) === i);
-  const total = unique.length;
-  let oneHotVectors = {};
-  for (let i = 0; i < total + 1; i++) {
-    let vector = Array(total + 1).fill(0);
-    vector[i] = 1;
-    if (i == total) {
-      oneHotVectors[""] = vector;
-    } else {
-      oneHotVectors[unique[i]] = vector;
-    }
-  }
-
-  return oneHotVectors;
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export { w2v };
+export { Word2Vector };
