@@ -1,5 +1,5 @@
 function highlightWords(x, y1, y2) {
-  let corpus = $("#article").html();
+  let corpus = document.querySelector("#article").innerHTML;
   let tmp = corpus.split("<b>");
 
   tmp[0] = tmp[0].replace(/<[^>]*>?/gm, "");
@@ -13,7 +13,7 @@ function highlightWords(x, y1, y2) {
     tmp[1] = tmp[1].replace(`${y1} ${x} ${y2}`, `<b>${y1} ${x} ${y2}</b>`);
   }
 
-  $("#article").html(tmp[0] + tmp[1]);
+  document.querySelector("#article").innerHTML = tmp[0] + tmp[1];
 }
 
 export { highlightWords };

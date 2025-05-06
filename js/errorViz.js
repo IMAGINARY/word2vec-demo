@@ -38,7 +38,9 @@ class ErrorChart {
 }
 
 const visualizeError = (iter, total_iter, errors) => {
-  $("#w2v_epoch").text(`epoch: ${iter} / ${total_iter}, error: ${errors}`);
+  document.querySelector(
+    "#w2v_epoch"
+  ).textContent = `epoch: ${iter} / ${total_iter}, error: ${errors}`;
 };
 
 export { ErrorChart, visualizeError };

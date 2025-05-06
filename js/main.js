@@ -5,7 +5,7 @@ const corpusText_en = `I eat seafood in Spain. I drink coffee in Italy. I eat fi
 const corpusText_es = `Como marisco en España. Bebo café en Italia. Como pescado en Japón. Como pasta en Italia. Bebo cerveza en Alemania. Bebo té en España. Como marisco en Japón. Bebo café en Alemania. Como pescado en Italia. Como pasta en España. Bebo cerveza en Japón. Bebo té en Japón.`;
 
 window.onload = () => {
-  const w2v = new Word2Vector(corpusText_es);
+  const w2v = new Word2Vector(corpusText_en);
   w2v.initNetwork();
 
   console.log(w2v.nn);

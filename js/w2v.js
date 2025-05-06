@@ -73,7 +73,7 @@ class Word2Vector {
   }
 
   async train(iter = 20) {
-    $("#w2v_training").prop("disabled", true);
+    document.getElementById("w2v_training").disabled = true;
 
     for (var it = 0; it < iter; it++) {
       var errors = 0.0;
