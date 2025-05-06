@@ -12,4 +12,12 @@ window.onload = () => {
   document
     .getElementById("w2v_training")
     .addEventListener("click", () => w2v.train());
+
+  document
+    .getElementById("w2v_step")
+    .addEventListener("click", () => w2v.trainDataPoint());
+
+  document
+    .getElementById("w2v_pause")
+    .addEventListener("click", () => w2v.pause());
 };

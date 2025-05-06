@@ -70,35 +70,71 @@ class Word2Vector {
         this.nn.secondMatrix[x][y] = w;
       }
     }
+    this.currentDataPoint = 0;
+    this.currentEpoch = 0;
+    this.currentEpochError = 0.0;
+  }
+
+  trainDataPoint() {
+    const iter = 20;
+    // document.getElementById("w2v_training").disabled = true;
+
+    this.nn.feedforward(this.vectors[this.data[this.currentDataPoint].x]);
+
+    const y = this.vectors[this.data[this.currentDataPoint].y[0]].concat(
+      this.vectors[this.data[this.currentDataPoint].y[1]]
+    );
+
+    this.currentEpochError += this.nn.backpropagate(y);
+
+    this.nnViz.update(
+      this.data[this.currentDataPoint].x,
+      this.data[this.currentDataPoint].y[0],
+      this.data[this.currentDataPoint].y[1]
+    );
+
+    const index = Object.keys(this.vectors).indexOf(
+      this.data[this.currentDataPoint].x
+    );
+    this.vecViz.redrawPositions(index, this.data[this.currentDataPoint].x);
+
+    highlightWords(
+      this.data[this.currentDataPoint].x,
+      this.data[this.currentDataPoint].y[0],
+      this.data[this.currentDataPoint].y[1]
+    );
+
+    this.currentDataPoint += 1;
+    if (this.currentDataPoint >= this.data.length) {
+      const avgErrors = this.currentEpochError / parseFloat(this.data.length);
+      visualizeError(this.currentEpoch + 1, iter, avgErrors);
+      this.errViz.updateCharts(this.currentEpoch + 1, avgErrors);
+      console.log(`Errors in ${this.currentEpoch} epoch: ${avgErrors}`);
+
+      this.currentDataPoint = 0;
+      this.currentEpoch += 1;
+      this.currentEpochError = 0.0;
+    }
+
+    if (this.currentEpoch >= iter) {
+      this.autoTrainingMode = false;
+      this.vecViz.runRotation();
+    }
   }
 
   async train(iter = 20) {
     document.getElementById("w2v_training").disabled = true;
+    this.autoTrainingMode = true;
 
-    for (var it = 0; it < iter; it++) {
-      var errors = 0.0;
-      for (var i = 0; i < this.data.length; i++) {
-        this.nn.feedforward(this.vectors[this.data[i].x]);
-        const y = this.vectors[this.data[i].y[0]].concat(
-          this.vectors[this.data[i].y[1]]
-        );
-        errors += this.nn.backpropagate(y);
-
-        this.nnViz.update(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
-
-        const index = Object.keys(this.vectors).indexOf(this.data[i].x);
-        this.vecViz.redrawPositions(index, this.data[i].x);
-
-        highlightWords(this.data[i].x, this.data[i].y[0], this.data[i].y[1]);
-        await sleep(65);
-      }
-      const avgErrors = errors / parseFloat(this.data.length);
-      visualizeError(it + 1, iter, avgErrors);
-      this.errViz.updateCharts(it + 1, avgErrors);
-      console.log(`Errors in ${it} epoch: ${avgErrors}`);
+    while (this.autoTrainingMode) {
+      this.trainDataPoint();
+      await sleep(65);
     }
+  }
 
-    this.vecViz.runRotation();
+  pause() {
+    this.autoTrainingMode = false;
+    document.getElementById("w2v_training").disabled = false;
   }
 
   getTrainingData(corpus, halfWinSize = 1) {
