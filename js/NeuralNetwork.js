@@ -103,12 +103,12 @@ class NeuralNetwork {
         this.outputLayer[i] = res2nd[0][i - this.oneHotSize] / res2nd[1];
       }
     }
-    console.log(
-      `The sum of 2 softmax result is ${this.outputLayer.reduce(
-        (partialSum, x) => partialSum + x,
-        0.0
-      )}`
-    );
+    // console.log(
+    //   `The sum of 2 softmax result is ${this.outputLayer.reduce(
+    //     (partialSum, x) => partialSum + x,
+    //     0.0
+    //   )}`
+    // );
   }
 
   softmax(tmp) {

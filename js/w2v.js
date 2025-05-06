@@ -6,26 +6,46 @@ import { highlightWords } from "./textViz.js";
 
 const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const tokenize = (text) => {
+  // corpus = corpus.replace(/\n/g, ' ');
+  // corpus = corpus.replace(/  /g, '');
+  // corpus = corpus.replace(/\./g, '');
+  // corpus = corpus.replace(/,/g, '');
+
+  return text.split(" ").filter((v, i, a) => v != "");
+};
+
+/*
+text: string with the cleaned text
+corpus: array of words
+vectors: sparse vectors with one-hot-encoding
+data: array of pairs {x,y}, where x is a word and y is an array of two words.
+*/
+
 class Word2Vector {
-  constructor() {
-    // this.corpus = clean($("#article").text());
-    // console.log(this.corpus);
-    // this.vectors = getOneHotVector(corpus);
+  constructor(sourceText) {
+    console.log("Constructing w2v...");
+    document.getElementById("article").innerHTML = sourceText + `<b></b>`; // display text
+    this.corpus = tokenize(sourceText); // split into words/tokens
+    this.vectors = this.getOneHotVector(this.corpus);
+    this.data = this.getTrainingData(this.corpus);
 
-    // const oneHotSize = 15; // TO FIX.
+    console.log("Corpus: ", this.corpus);
+    console.log("Vectors: ", this.vectors);
+    console.log("OneHotSize: ", this.oneHotSize);
+    console.log("Training data: ", this.data);
 
-    this.nn = new NeuralNetwork(15);
+    // console.log(this.oneHotSize);
+
+    this.nn = new NeuralNetwork(this.oneHotSize);
     this.nnViz = new NeuralNetworkVisualization(this.nn);
     this.vecViz = new VectorVisualization(this.nn);
     this.errViz = new ErrorChart();
+    console.log("Done constructing w2v.");
   }
 
   initNetwork() {
-    console.log("Initializing network");
-    this.corpus = this.clean($("#article").text());
-    // console.log(corpus);
-    this.vectors = this.getOneHotVector(this.corpus);
-    this.data = this.getTrainingData(this.corpus);
+    console.log("Initializing network...");
 
     for (var x = 0; x < this.nn.inputLayer.length; x++) {
       for (var y = 0; y < this.nn.hiddenLayer.length; y++) {
@@ -54,10 +74,6 @@ class Word2Vector {
 
   async train(iter = 20) {
     $("#w2v_training").prop("disabled", true);
-
-    console.log("Corpus: ", this.corpus);
-    console.log("Vectors: ", this.vectors);
-    console.log("Data: ", this.data);
 
     for (var it = 0; it < iter; it++) {
       var errors = 0.0;
@@ -103,18 +119,12 @@ class Word2Vector {
     return data;
   }
 
-  clean(text) {
-    // corpus = corpus.replace(/\n/g, ' ');
-    // corpus = corpus.replace(/  /g, '');
-    // corpus = corpus.replace(/\./g, '');
-    // corpus = corpus.replace(/,/g, '');
-
-    return text.split(" ").filter((v, i, a) => v != "");
-  }
-
   getOneHotVector(corpus) {
     const unique = corpus.filter((v, i, a) => a.indexOf(v) === i);
     const total = unique.length;
+    console.log(`Number of unique tokens in corpus: ${total}`);
+    // console.log(unique);
+    this.oneHotSize = total + 1;
     let oneHotVectors = {};
     for (let i = 0; i < total + 1; i++) {
       let vector = Array(total + 1).fill(0);
