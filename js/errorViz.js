@@ -1,9 +1,6 @@
-$("#nn_errors").width = $("#article").width();
-$("#nn_errors").height = $("#article").width();
-
 class ErrorChart {
   constructor() {
-    this.chart = new Chart($("#nn_errors"), {
+    this.chart = new Chart(document.getElementById("nn_errors"), {
       type: "line",
       data: {
         labels: [],

@@ -36,12 +36,10 @@ class VectorVisualization {
 
     this.layout = {
       dragmode: true,
-      height: $("#article").width(),
-      width: $("#article").width(),
       margin: { l: 0, r: 0, b: 0, t: 0 },
       scene: {
         camera: {
-          eye: { x: 1, y: 1, z: 1 },
+          eye: { x: 2, y: 2, z: 2 },
         },
       },
     };
