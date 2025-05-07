@@ -9,21 +9,16 @@ const r = 10;
 class NeuralNetworkVisualization {
   constructor(nn) {
     this.nn = nn;
-
     this.oneHotSize = this.nn.oneHotSize;
-
-    this.width = $("#w2v-vis").parent().width();
+    this.width = 800;
     this.height = 976;
-
-    d3.select("div#w2v-vis > *").remove();
 
     this.nnSvg = d3
       .select("div#w2v-vis")
       .append("div")
       .append("svg")
-      .attr("width", this.width)
-      .attr("height", this.height)
-      .attr("style", "background-color: #ADD7F6;");
+      .attr("viewBox", `0 0 ${this.width} ${this.height}`)
+      .attr("style", "background-color: #ADD7F6; width:100%; height: auto;");
 
     this.textInput = this.nnSvg
       .append("g")
@@ -39,6 +34,22 @@ class NeuralNetworkVisualization {
       .append("g")
       .classed("input-text", true)
       .append("text");
+
+    this.inputEdges = this.nnSvg
+      .selectAll("g.input-edge")
+      .data(this.nn.firstEdges)
+      .enter()
+      .append("g")
+      .classed("input-edge", true)
+      .append("line");
+
+    this.hiddenEdges = this.nnSvg
+      .selectAll("g.hidden-edge")
+      .data(this.nn.secondEdges)
+      .enter()
+      .append("g")
+      .classed("hidden-edge", true)
+      .append("line");
 
     this.nnInput = this.nnSvg
       .selectAll("g.input-neuron")
@@ -63,22 +74,6 @@ class NeuralNetworkVisualization {
       .append("g")
       .classed("hidden2-neuron", true)
       .append("circle");
-
-    this.inputEdges = this.nnSvg
-      .selectAll("g.input-edge")
-      .data(this.nn.firstEdges)
-      .enter()
-      .append("g")
-      .classed("input-edge", true)
-      .append("line");
-
-    this.hiddenEdges = this.nnSvg
-      .selectAll("g.hidden-edge")
-      .data(this.nn.secondEdges)
-      .enter()
-      .append("g")
-      .classed("hidden-edge", true)
-      .append("line");
 
     this.tooltip = d3
       .select("body")
@@ -111,27 +106,30 @@ class NeuralNetworkVisualization {
 
   update(x, y1, y2) {
     const sizeOfText = 24;
+    const widthOfText = 100;
 
     this.textInput
       .text(x)
-      .attr("x", 0)
+      .attr("x", this.width / 8)
       .attr("y", this.getPosY(0, 1) + sizeOfText / 2)
       .style("font-size", sizeOfText.toString() + "px")
-      .style("color", "black");
+      .style("color", "black")
+      .style("text-anchor", "middle");
 
     this.textOutput1
       .text(y1)
-      .attr("x", 350)
+      .attr("x", (7 * this.width) / 8)
       .attr(
         "y",
         this.getPosY(this.oneHotSize / 2, this.oneHotSize * 2) + sizeOfText / 2
       )
       .style("font-size", sizeOfText.toString() + "px")
-      .style("color", "black");
+      .style("color", "black")
+      .style("text-anchor", "middle");
 
     this.textOutput2
       .text(y2)
-      .attr("x", 350)
+      .attr("x", (7 * this.width) / 8)
       .attr(
         "y",
         this.getPosY(
@@ -141,11 +139,12 @@ class NeuralNetworkVisualization {
           sizeOfText / 2
       )
       .style("font-size", sizeOfText.toString() + "px")
-      .style("color", "black");
+      .style("color", "black")
+      .style("text-anchor", "middle");
 
     this.nnInput
       .data(this.nn.inputLayer)
-      .attr("cx", 125)
+      .attr("cx", this.width / 4)
       .attr("cy", (d, i) => this.getPosY(i, this.nn.inputLayer.length))
       .attr("r", r)
       .style("fill", (d) => {
@@ -167,7 +166,7 @@ class NeuralNetworkVisualization {
 
     this.nnHidden
       .data(this.nn.hiddenLayer)
-      .attr("cx", 225)
+      .attr("cx", (2 * this.width) / 4)
       .attr("cy", (d, i) => this.getPosY(i, this.nn.hiddenLayer.length))
       .attr("r", r)
       .style("fill", (d) => {
@@ -187,7 +186,7 @@ class NeuralNetworkVisualization {
 
     this.nnOutput
       .data(this.nn.outputLayer)
-      .attr("cx", 325)
+      .attr("cx", (3 * this.width) / 4)
       .attr("cy", (d, i) => this.getPosY(i, this.nn.outputLayer.length))
       .attr("r", r)
       .style("fill", (d) => {
@@ -209,9 +208,9 @@ class NeuralNetworkVisualization {
 
     this.inputEdges
       .data(this.nn.firstEdges)
-      .attr("x1", 125 + r)
+      .attr("x1", this.width / 4)
       .attr("y1", (d) => this.getPosY(d["i"], this.nn.inputLayer.length))
-      .attr("x2", 225 - r)
+      .attr("x2", (2 * this.width) / 4)
       .attr("y2", (d) => this.getPosY(d["j"], this.nn.hiddenLayer.length))
       .attr("stroke", (d) => {
         // console.log(d["weight"]);
@@ -236,9 +235,9 @@ class NeuralNetworkVisualization {
 
     this.hiddenEdges
       .data(this.nn.secondEdges)
-      .attr("x1", 225 + r)
+      .attr("x1", (2 * this.width) / 4)
       .attr("y1", (d) => this.getPosY(d["i"], this.nn.hiddenLayer.length))
-      .attr("x2", 325 - r)
+      .attr("x2", (3 * this.width) / 4)
       .attr("y2", (d) => this.getPosY(d["j"], this.nn.outputLayer.length))
       .attr("stroke", (d) => {
         // console.log(d["weight"]);
