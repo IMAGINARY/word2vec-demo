@@ -13,11 +13,16 @@ window.onload = () => {
     .getElementById("w2v_training")
     .addEventListener("click", () => w2v.train());
 
-  document
-    .getElementById("w2v_step")
-    .addEventListener("click", () => w2v.trainDataPoint());
+  document.getElementById("w2v_step").addEventListener("click", () => {
+    w2v.pause();
+    w2v.trainDataPoint();
+  });
 
   document
     .getElementById("w2v_pause")
     .addEventListener("click", () => w2v.pause());
+
+  document
+    .getElementById("w2v_reset")
+    .addEventListener("click", () => w2v.reset());
 };

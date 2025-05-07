@@ -2,7 +2,7 @@ import { NeuralNetwork } from "./NeuralNetwork.js";
 import { NeuralNetworkVisualization } from "./nnViz.js";
 import { VectorVisualization } from "./vectorViz.js";
 import { ErrorChart, visualizeError } from "./errorViz.js";
-import { highlightWords } from "./textViz.js";
+import { TextVisualization } from "./textViz.js";
 
 const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -25,7 +25,7 @@ data: array of pairs {x,y}, where x is a word and y is an array of two words.
 class Word2Vector {
   constructor(sourceText) {
     console.log("Constructing w2v...");
-    document.getElementById("article").innerHTML = sourceText + `<b></b>`; // display text
+    this.sourceText = sourceText;
     this.corpus = tokenize(sourceText); // split into words/tokens
     this.vectors = this.getOneHotVector(this.corpus);
     this.data = this.getTrainingData(this.corpus);
@@ -41,6 +41,8 @@ class Word2Vector {
     this.nnViz = new NeuralNetworkVisualization(this.nn);
     this.vecViz = new VectorVisualization(this.nn);
     this.errViz = new ErrorChart();
+    this.textViz = new TextVisualization(this.sourceText);
+
     console.log("Done constructing w2v.");
   }
 
@@ -98,7 +100,7 @@ class Word2Vector {
     );
     this.vecViz.redrawPositions(index, this.data[this.currentDataPoint].x);
 
-    highlightWords(
+    this.textViz.highlightWords(
       this.data[this.currentDataPoint].x,
       this.data[this.currentDataPoint].y[0],
       this.data[this.currentDataPoint].y[1]
@@ -135,6 +137,25 @@ class Word2Vector {
   pause() {
     this.autoTrainingMode = false;
     document.getElementById("w2v_training").disabled = false;
+  }
+
+  reset() {
+    console.log("Resetting...");
+    this.autoTrainingMode = false;
+    document.getElementById("w2v_training").disabled = false;
+
+    this.nnViz.dispose();
+    this.nnViz = new NeuralNetworkVisualization(this.nn);
+
+    this.vecViz.dispose();
+    this.vecViz = new VectorVisualization(this.nn);
+
+    this.errViz.dispose();
+    this.errViz = new ErrorChart();
+
+    this.textViz.dispose();
+    this.textViz = new TextVisualization(this.sourceText);
+    this.initNetwork();
   }
 
   getTrainingData(corpus, halfWinSize = 1) {

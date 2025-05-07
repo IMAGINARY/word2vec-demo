@@ -28,6 +28,10 @@ class ErrorChart {
     });
   }
 
+  dispose() {
+    // document.querySelector("#nn_errors>canvas").remove();
+  }
+
   updateCharts(iter, errors) {
     this.chart.data.labels.push(iter);
     this.chart.data.datasets.forEach((dataset) => {

@@ -53,6 +53,10 @@ class VectorVisualization {
     });
   }
 
+  dispose() {
+    this.divPos.innerHTML = "";
+  }
+
   runRotation() {
     this.rotate("scene", Math.PI / 1440);
     requestAnimationFrame(() => this.runRotation());

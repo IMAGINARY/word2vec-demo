@@ -91,6 +91,12 @@ class NeuralNetworkVisualization {
       .style("z-index", "10")
       .style("visibility", "hidden")
       .text("");
+
+    // this.update();
+  }
+
+  dispose() {
+    this.nnSvg.remove();
   }
 
   getPosY(i, len) {
