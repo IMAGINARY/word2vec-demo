@@ -21,7 +21,7 @@ class VectorVisualization {
       y: Array(this.oneHotSize).fill(0.0),
       z: Array(this.oneHotSize).fill(0.0),
       text: Array(this.oneHotSize).fill(""),
-      mode: "markers",
+      mode: "markers+text",
       marker: {
         size: 5,
         line: {
@@ -31,6 +31,7 @@ class VectorVisualization {
         color: "#84DCC6",
         opacity: 0.8,
       },
+      textfont: { size: 20 },
       type: "scatter3d",
     };
 
@@ -39,7 +40,7 @@ class VectorVisualization {
       margin: { l: 0, r: 0, b: 0, t: 0 },
       scene: {
         camera: {
-          eye: { x: 2, y: 2, z: 2 },
+          eye: { x: 1, y: 1, z: 1 },
         },
       },
     };

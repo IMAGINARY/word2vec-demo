@@ -20,9 +20,9 @@
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid">
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="panel panel-primary">
             <div class="panel-heading">Training data (Corpus)</div>
             <div class="panel-body">
@@ -36,12 +36,7 @@
               <button class="btn btn-primary" id="w2v_reset">Reset</button>
             </div>
           </div>
-          <div class="panel panel-primary">
-            <div class="panel-heading">Vector space</div>
-            <div class="panel-body">
-              <div id="positions"></div>
-            </div>
-          </div>
+
           <div class="panel panel-primary">
             <div class="panel-heading">Error over epoch</div>
             <div class="panel-body">
@@ -49,7 +44,15 @@
             </div>
           </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-5">
+          <div class="panel panel-primary">
+            <div class="panel-heading">Vector space</div>
+            <div class="panel-body">
+              <div id="positions"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
           <div class="panel panel-primary">
             <div class="panel-heading">Neural Network Visualization</div>
             <div id="w2v-vis"></div>
