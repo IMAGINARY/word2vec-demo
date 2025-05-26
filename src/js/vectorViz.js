@@ -1,3 +1,5 @@
+import Plotly from "plotly.js-dist";
+
 const xyz2rtz = (xyz) => ({
   r: Math.sqrt(xyz.x * xyz.x + xyz.y * xyz.y),
   t: Math.atan2(xyz.y, xyz.x),

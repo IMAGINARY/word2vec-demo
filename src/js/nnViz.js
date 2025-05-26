@@ -1,6 +1,4 @@
-// import * as d3 from "./d3.min.js";
-// import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-// import * as d3 from "./d3.v7.min.js";
+import * as d3 from "d3";
 
 const scaleNeuron = d3.scaleLinear().domain([0.0, 1.0]).range([0, 255]);
 const scaleEdge = d3.scaleLinear().domain([-5.5, 5.5]).range([0, 255]);

@@ -1,0 +1,32 @@
+{
+  "name": "word2vec-demo",
+  "version": "1.0.0",
+  "description": "- This is a demo of word2vec skip-gram architecture   - The sliding window size is 3   - We use a center word (in one hot vector format) as an input to predict context words (in one hot vector format)   - After the training is done, the hidden layer can be used as word embeddings and we can observe that similar words will be close to each other in vector space",
+  "main": "index.js",
+  "targets": {
+    "frontend": {
+      "source": [
+        "src/html/index.html"
+      ],
+      "context": "browser",
+      "isLibrary": false,
+      "publicUrl": "."
+    }
+  },
+  "dependencies": {
+    "chart.js": "^2.9.4",
+    "d3": "^7.9.0",
+    "plotly.js-dist": "^3.0.1"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "parcel": "^2.15.2",
+    "process": "^0.11.10"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "parcel serve --dist-dir dist-dev --target 'frontend' "
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,3 +1,5 @@
+import { Chart } from "chart.js";
+
 class ErrorChart {
   constructor() {
     this.chart = new Chart(document.getElementById("nn_errors"), {
