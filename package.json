@@ -25,7 +25,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "parcel serve --dist-dir dist-dev --target 'frontend' "
+    "serve": "parcel serve --dist-dir dist-dev --target 'frontend' ",
+    "build": "parcel build --dist-dir dist --target 'frontend' "
   },
   "author": "",
   "license": "ISC"

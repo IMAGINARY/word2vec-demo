@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang=en><title>Word2Vec Demo</title><meta http-equiv=Content-Type content="text/html;charset=UTF-8"><meta name=viewport content="width=device-width, initial-scale=1"><link rel=stylesheet href=https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css><link rel=stylesheet href=html.18bfb093.css><body>
+    <div class=container-fluid>
+      <div class=row>
+        <div class=col-md-3>
+          <div class="panel panel-primary">
+            <div class=panel-heading>Training data (Corpus)</div>
+            <div class=panel-body>
+              <div id=article></div>
+              <hr>
+              <button class="btn btn-primary" id=w2v_training>
+                <span class="glyphicon glyphicon-wrench"></span> Train
+              </button>
+              <button class="btn btn-primary" id=w2v_step>Step</button>
+              <button class="btn btn-primary" id=w2v_pause>Pause</button>
+              <button class="btn btn-primary" id=w2v_reset>Reset</button>
+            </div>
+          </div>
+
+          <div class="panel panel-primary">
+            <div class=panel-heading>Error over epoch</div>
+            <div class=panel-body>
+              <canvas id=nn_errors></canvas>
+            </div>
+          </div>
+        </div>
+        <div class=col-md-5>
+          <div class="panel panel-primary">
+            <div class=panel-heading>Vector space</div>
+            <div class=panel-body>
+              <div id=positions></div>
+            </div>
+          </div>
+        </div>
+        <div class=col-md-4>
+          <div class="panel panel-primary">
+            <div class=panel-heading>Neural Network Visualization</div>
+            <div id=w2v-vis></div>
+            <div class=panel-footer>
+              <div id=w2v_epoch></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br><br><br>
+
+    <script src=html.d5d2dffd.js type=module></script>
+  
+
