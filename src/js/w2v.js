@@ -158,6 +158,16 @@ class Word2Vector {
     this.initNetwork();
   }
 
+  dispose() {
+    console.log("Disposing w2v...");
+    this.autoTrainingMode = false;
+    document.getElementById("w2v_training").disabled = false;
+
+    this.nnViz.dispose();
+    this.vecViz.dispose();
+    this.errViz.dispose();
+    this.textViz.dispose();
+  }
   getTrainingData(corpus, halfWinSize = 1) {
     let data = [];
     for (let i = 0; i < corpus.length; i++) {

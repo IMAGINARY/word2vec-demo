@@ -9,7 +9,7 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"
     />
-    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/style.scss" />
   </head>
 
   <body>
@@ -17,8 +17,8 @@
       <div class="row">
         <div class="col-md-3">
           <div class="panel panel-primary">
-            <div class="panel-heading">Training data (Corpus)</div>
-            <div class="panel-body">
+            <div class="panel-heading translate" data-i18n="tdCorpus"></div>
+            <div class="panel-body" id="panel-corpus">
               <div id="article"></div>
               <hr />
               <button class="btn btn-primary" id="w2v_training">
@@ -27,11 +27,15 @@
               <button class="btn btn-primary" id="w2v_step">Step</button>
               <button class="btn btn-primary" id="w2v_pause">Pause</button>
               <button class="btn btn-primary" id="w2v_reset">Reset</button>
+              <hr />
             </div>
           </div>
 
           <div class="panel panel-primary">
-            <div class="panel-heading">Error over epoch</div>
+            <div
+              class="panel-heading translate"
+              data-i18n="ErrorOverEpoch"
+            ></div>
             <div class="panel-body">
               <canvas id="nn_errors"></canvas>
             </div>
@@ -39,7 +43,7 @@
         </div>
         <div class="col-md-5">
           <div class="panel panel-primary">
-            <div class="panel-heading">Vector space</div>
+            <div class="panel-heading translate" data-i18n="VectorSpace"></div>
             <div class="panel-body">
               <div id="positions"></div>
             </div>
@@ -47,7 +51,11 @@
         </div>
         <div class="col-md-4">
           <div class="panel panel-primary">
-            <div class="panel-heading">Neural Network Visualization</div>
+            <div
+              class="panel-heading translate"
+              ,
+              data-i18n="nnVisualization"
+            ></div>
             <div id="w2v-vis"></div>
             <div class="panel-footer">
               <div id="w2v_epoch"></div>
