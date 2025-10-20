@@ -12,11 +12,12 @@ const iconTranslate = new URL("../img/translate.svg", import.meta.url).href;
 // Filter here the languages to appear in the UI.
 const langList = locales
   .map(({ isoCode, endonym }) => ({ isoCode, endonym }))
-  .filter((d) => ["en", "fr"].includes(d.isoCode));
+  .filter((d) => ["en", "es"].includes(d.isoCode));
 
 const resourcesGraphs_en = {}; //as { [key: string]: string };
 const resourcesGraphs_fr = {}; //as { [key: string]: string };
 const resourcesGraphs_de = {}; //as { [key: string]: string };
+const resourcesGraphs_es = {}; //as { [key: string]: string };
 
 const resour = locales.reduce(
   (acc, { isoCode, resource }) => ({ ...acc, ...{ [isoCode]: resource } }),

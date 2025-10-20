@@ -10,7 +10,11 @@ const fr = {
       ErrorOverEpoch: "Erreur sûr Epoch",
       VectorSpace: "Espace vectoriel",
       nnVisualization: "Visualisation du résseau néuronnel",
-      corpusText: `Como marisco en España. Bebo café en Italia. Como pescado en Japón. Como pasta en Italia. Bebo cerveza en Alemania. Bebo té en España. Como marisco en Japón. Bebo café en Alemania. Como pescado en Italia. Como pasta en España. Bebo cerveza en Japón. Bebo té en Japón.`,
+      corpusText: `Je mange des fruits de mer en Espagne. Je bois du café en Italie. Je mange du poisson au Japon. Je mange des pâtes en Italie. Je bois de la bière en Allemagne. Je bois du thé en Espagne. Je mange des fruits de mer au Japon. Je bois du café en Allemagne. Je mange du poisson en Italie. Je mange des pâtes en Espagne. Je bois de la bière au Japon. Je bois du thé au Japon.`,
+      train: "Entraîner",
+      pause: "Arrêter",
+      reset: "Redemarrer",
+      step: "Pas",
     },
   },
 };
