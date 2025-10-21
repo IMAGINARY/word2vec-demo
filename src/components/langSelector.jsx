@@ -27,6 +27,7 @@ const i18nextOptions = {
 
 void i18next.use(LanguageDetector).init(i18nextOptions);
 const localize = locI18next.init(i18next);
+const localizeKey = i18next.t;
 
 function LangSelector() {
   return (
@@ -65,4 +66,4 @@ function LangSelector() {
   );
 }
 
-export { LangSelector, localize };
+export { LangSelector, localize, localizeKey };

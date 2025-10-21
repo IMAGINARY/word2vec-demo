@@ -125,7 +125,7 @@ class Word2Vector {
   }
 
   async train(iter = 20) {
-    document.getElementById("w2v_training").disabled = true;
+    // document.getElementById("w2v_training").disabled = true;
     this.autoTrainingMode = true;
 
     while (this.autoTrainingMode) {
