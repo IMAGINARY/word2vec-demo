@@ -13,72 +13,8 @@
   </head>
 
   <body>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-3">
-          <div class="panel panel-primary">
-            <div class="panel-heading translate" data-i18n="tdCorpus"></div>
-            <div class="panel-body" id="panel-corpus">
-              <div id="article"></div>
-              <hr />
-              <button class="btn btn-primary" id="w2v_training">
-                <span class="glyphicon glyphicon-wrench"></span>
-                <span class="translate" data-i18n="train"></span>
-              </button>
-              <button
-                class="btn btn-primary translate"
-                data-i18n="step"
-                id="w2v_step"
-              ></button>
-              <button
-                class="btn btn-primary translate"
-                data-i18n="pause"
-                id="w2v_pause"
-              ></button>
-              <button
-                class="btn btn-primary translate"
-                data-i18n="reset"
-                id="w2v_reset"
-              ></button>
-              <hr />
-            </div>
-          </div>
+    <div id="app"></div>
 
-          <div class="panel panel-primary">
-            <div
-              class="panel-heading translate"
-              data-i18n="ErrorOverEpoch"
-            ></div>
-            <div class="panel-body">
-              <canvas id="nn_errors"></canvas>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-5">
-          <div class="panel panel-primary">
-            <div class="panel-heading translate" data-i18n="VectorSpace"></div>
-            <div class="panel-body">
-              <div id="positions"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="panel panel-primary">
-            <div
-              class="panel-heading translate"
-              ,
-              data-i18n="nnVisualization"
-            ></div>
-            <div id="w2v-vis"></div>
-            <div class="panel-footer">
-              <div id="w2v_epoch"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <br /><br /><br />
-
-    <script src="../js/main.js" type="module"></script>
+    <script src="../js/main.jsx" type="module"></script>
   </body>
 </html>
