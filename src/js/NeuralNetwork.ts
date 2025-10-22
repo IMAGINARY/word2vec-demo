@@ -1,12 +1,30 @@
+interface NeuralNetwork {
+  inputLayer: number[];
+  hiddenLayer: number[];
+  outputLayer: number[];
+  firstEdges: { i: number; j: number; weight: number }[];
+  secondEdges: { i: number; j: number; weight: number }[];
+  firstMatrix: number[][];
+  secondMatrix: number[][];
+  prevFirstMatrix: number[][];
+  prevSecondMatrix: number[][];
+  oneHotSize: number;
+  sigmoid(x: number): number;
+  dsigmoid(y: number): number;
+  feedforward(x: number[]): void;
+  softmax(tmp: number[]): [number[], number];
+  backpropagate(y: number[], N?: number, M?: number): number;
+}
+
 class NeuralNetwork {
-  constructor(inputSize) {
+  constructor(inputSize: number) {
     console.log("Initializing Neural Network");
     console.log("inputSize: ", inputSize);
     this.oneHotSize = inputSize;
 
     this.inputLayer = new Array(inputSize).fill(0.0);
     this.hiddenLayer = new Array(3).fill(0.0);
-    this.outputLayer = new Array(30).fill(0.0);
+    this.outputLayer = new Array(2 * inputSize).fill(0.0);
 
     this.firstEdges = Array(
       this.inputLayer.length * this.hiddenLayer.length
@@ -30,11 +48,11 @@ class NeuralNetwork {
     ); //last change in weights for momentum
   }
 
-  sigmoid(x) {
+  sigmoid(x: number) {
     return 1 / (1 + Math.exp(-x));
   }
 
-  dsigmoid(y) {
+  dsigmoid(y: number) {
     return y * (1 - y);
   }
 
@@ -56,7 +74,7 @@ class NeuralNetwork {
   //   return result;
   // }
 
-  feedforward(x) {
+  feedforward(x: number[]) {
     x.forEach((e, i) => {
       this.inputLayer[i] = e;
     });
@@ -111,7 +129,11 @@ class NeuralNetwork {
     // );
   }
 
-  softmax(tmp) {
+  /**
+   * @param tmp array to be softmaxed
+   * @returns tuple of (softmaxed array, sum of exponentials)
+   */
+  softmax(tmp: number[]): [number[], number] {
     tmp = tmp.map((x) => {
       const exp = Math.exp(x);
       return exp == Infinity ? Number.MAX_VALUE : exp;
@@ -123,7 +145,7 @@ class NeuralNetwork {
     return [tmp, expSum];
   }
 
-  backpropagate(y, N = 0.75, M = 0.1) {
+  backpropagate(y: number[], N = 0.75, M = 0.1) {
     var outputDeltas = Array(this.outputLayer.length).fill(0.0);
     var totalErrors = 0.0;
     y.forEach((ele, index) => {
@@ -186,7 +208,7 @@ class NeuralNetwork {
       }
     }
 
-    return totalErrors / parseFloat(y.length);
+    return totalErrors / y.length;
   }
 }
 

@@ -1,5 +1,5 @@
-import { NeuralNetwork } from "./NeuralNetwork.js";
-import { NeuralNetworkVisualization } from "./nnViz.js";
+import { NeuralNetwork } from "./NeuralNetwork.ts";
+import { NeuralNetworkVisualization } from "./nnViz.ts";
 import { VectorVisualization } from "./vectorViz.js";
 import { ErrorChart, visualizeError } from "./errorViz.js";
 import { TextVisualization } from "./textViz.js";

@@ -1,15 +1,39 @@
 import * as d3 from "d3";
+import type { NeuralNetwork } from "./NeuralNetwork";
 
 const scaleNeuron = d3.scaleLinear().domain([0.0, 1.0]).range([0, 255]);
 const scaleEdge = d3.scaleLinear().domain([-5.5, 5.5]).range([0, 255]);
 const r = 10;
 
+interface NeuralNetworkVisualization {
+  nn: NeuralNetwork;
+  oneHotSize: number;
+  width: number;
+  height: number;
+  status: string;
+  nnSvg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
+  textInput: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
+  textOutput1: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
+  textOutput2: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
+  inputEdges: d3.Selection<SVGLineElement, any, any, any>;
+  hiddenEdges: d3.Selection<SVGLineElement, any, any, any>;
+  nnInput: d3.Selection<SVGCircleElement, any, any, any>;
+  nnHidden: d3.Selection<SVGCircleElement, any, any, any>;
+  nnOutput: d3.Selection<SVGCircleElement, any, any, any>;
+  tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+  dispose(): void;
+  getPosY(i: number, len: number): number;
+  update(x: string, y1: string, y2: string): void;
+}
+
 class NeuralNetworkVisualization {
-  constructor(nn) {
+  constructor(nn: NeuralNetwork) {
     this.nn = nn;
     this.oneHotSize = this.nn.oneHotSize;
     this.width = 800;
     this.height = 976;
+
+    this.status = "paused"; // training, prediction, paused
 
     this.nnSvg = d3
       .select("div#w2v-vis")
@@ -92,7 +116,7 @@ class NeuralNetworkVisualization {
     this.nnSvg.remove();
   }
 
-  getPosY(i, len) {
+  getPosY(i: number, len: number) {
     const mid = this.height / 2;
     const step = 15;
     const halfStep = step / 2;
@@ -102,7 +126,7 @@ class NeuralNetworkVisualization {
     return startPos + i * 2 * step;
   }
 
-  update(x, y1, y2) {
+  update(x: string, y1: string, y2: string) {
     const sizeOfText = 24;
     const widthOfText = 100;
 
