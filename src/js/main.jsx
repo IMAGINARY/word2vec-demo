@@ -1,4 +1,4 @@
-import { Word2Vector } from "./w2v.js";
+import { Word2Vector } from "./w2v.ts";
 import { localize } from "../components/langSelector.jsx";
 
 window.corpusText = "Select a language to load the corpus text.";

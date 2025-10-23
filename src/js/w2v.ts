@@ -4,44 +4,73 @@ import { VectorVisualization } from "./vectorViz.js";
 import { ErrorChart, visualizeError } from "./errorViz.js";
 import { TextVisualization } from "./textViz.js";
 
-const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = async (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
-const tokenize = (text) => {
-  // corpus = corpus.replace(/\n/g, ' ');
-  // corpus = corpus.replace(/  /g, '');
-  // corpus = corpus.replace(/\./g, '');
-  // corpus = corpus.replace(/,/g, '');
+const tokenize = (text: string) =>
+  text
+    // .replace(/\./g, " .")
+    // .replace(",", " ,")
+    // .replace("!", " !")
+    // .replace("?", " ?")
+    // .replace(/\n/g, " ")
+    // .replace(/  /g, " ")
+    .split(" ")
+    .filter((v, i, a) => v != "");
 
-  return text.split(" ").filter((v, i, a) => v != "");
-};
+console.log(tokenize("This is a      sample. This, sample is simple!"));
 
-/*
-text: string with the cleaned text
-corpus: array of words
-vectors: sparse vectors with one-hot-encoding
-data: array of pairs {x,y}, where x is a word and y is an array of two words.
-*/
+interface Word2Vector {
+  corpus: string; // string with the cleaned text
+  corpusTokens: string[]; // array of words
+  tokens: string[]; // array of unique words in the corpus
+  vectors: { [key: string]: number[] }; // dictionary {token: vector} of sparse vectors with one-hot-encoding
+  oneHotSize: number; // size of one-hot vectors
+  data: { x: string; y: string[] }[]; // array of pairs {x,y}, where x is a word and y is an array of two words.
+  nn: NeuralNetwork;
+  nnViz: NeuralNetworkVisualization;
+  vecViz: VectorVisualization;
+  errViz: ErrorChart;
+  textViz: TextVisualization;
+  currentDataPoint: number;
+  currentEpoch: number;
+  currentEpochError: number;
+  autoTrainingMode: boolean;
+  initNetwork(): void;
+  trainDataPoint(): void;
+  train(): Promise<void>;
+  pause(): void;
+  reset(): void;
+  dispose(): void;
+  getTrainingData(
+    corpusTokens: string[],
+    halfWinSize?: number
+  ): { x: string; y: string[] }[];
+  getOneHotVector(tokens: string[]): { [key: string]: number[] };
+}
 
 class Word2Vector {
-  constructor(sourceText) {
+  constructor(corpus: string) {
     console.log("Constructing w2v...");
-    this.sourceText = sourceText;
-    this.corpus = tokenize(sourceText); // split into words/tokens
-    this.vectors = this.getOneHotVector(this.corpus);
-    this.data = this.getTrainingData(this.corpus);
+    this.corpus = corpus;
+    this.corpusTokens = tokenize(corpus); // corpus split into words/tokens
+    this.tokens = this.corpusTokens.filter((v, i, a) => a.indexOf(v) === i); // unique tokens
+
+    this.vectors = this.getOneHotVector(this.tokens);
+    this.data = this.getTrainingData(this.corpusTokens);
 
     console.log("Corpus: ", this.corpus);
+    console.log("corpusTokens: ", this.corpusTokens);
+    console.log("Tokens: ", this.tokens);
     console.log("Vectors: ", this.vectors);
     console.log("OneHotSize: ", this.oneHotSize);
     console.log("Training data: ", this.data);
-
-    // console.log(this.oneHotSize);
 
     this.nn = new NeuralNetwork(this.oneHotSize);
     this.nnViz = new NeuralNetworkVisualization(this.nn);
     this.vecViz = new VectorVisualization(this.nn);
     this.errViz = new ErrorChart();
-    this.textViz = new TextVisualization(this.sourceText);
+    this.textViz = new TextVisualization(this.corpus);
 
     console.log("Done constructing w2v.");
   }
@@ -75,11 +104,11 @@ class Word2Vector {
     this.currentDataPoint = 0;
     this.currentEpoch = 0;
     this.currentEpochError = 0.0;
+    console.log("Done initializing network.");
   }
 
   trainDataPoint() {
     const iter = 20;
-    // document.getElementById("w2v_training").disabled = true;
 
     this.nn.feedforward(this.vectors[this.data[this.currentDataPoint].x]);
 
@@ -108,7 +137,7 @@ class Word2Vector {
 
     this.currentDataPoint += 1;
     if (this.currentDataPoint >= this.data.length) {
-      const avgErrors = this.currentEpochError / parseFloat(this.data.length);
+      const avgErrors = this.currentEpochError / this.data.length;
       visualizeError(this.currentEpoch + 1, iter, avgErrors);
       this.errViz.updateCharts(this.currentEpoch + 1, avgErrors);
       console.log(`Errors in ${this.currentEpoch} epoch: ${avgErrors}`);
@@ -124,10 +153,8 @@ class Word2Vector {
     }
   }
 
-  async train(iter = 20) {
-    // document.getElementById("w2v_training").disabled = true;
+  async train() {
     this.autoTrainingMode = true;
-
     while (this.autoTrainingMode) {
       this.trainDataPoint();
       await sleep(65);
@@ -136,13 +163,11 @@ class Word2Vector {
 
   pause() {
     this.autoTrainingMode = false;
-    document.getElementById("w2v_training").disabled = false;
   }
 
   reset() {
     console.log("Resetting...");
     this.autoTrainingMode = false;
-    document.getElementById("w2v_training").disabled = false;
 
     this.nnViz.dispose();
     this.nnViz = new NeuralNetworkVisualization(this.nn);
@@ -154,31 +179,31 @@ class Word2Vector {
     this.errViz = new ErrorChart();
 
     this.textViz.dispose();
-    this.textViz = new TextVisualization(this.sourceText);
+    this.textViz = new TextVisualization(this.corpus);
     this.initNetwork();
   }
 
   dispose() {
     console.log("Disposing w2v...");
     this.autoTrainingMode = false;
-    document.getElementById("w2v_training").disabled = false;
 
     this.nnViz.dispose();
     this.vecViz.dispose();
     this.errViz.dispose();
     this.textViz.dispose();
   }
-  getTrainingData(corpus, halfWinSize = 1) {
-    let data = [];
-    for (let i = 0; i < corpus.length; i++) {
-      let tmp = { x: "", y: [] };
+
+  getTrainingData(corpusTokens: string[], halfWinSize = 1) {
+    let data = [] as { x: string; y: string[] }[];
+    for (let i = 0; i < corpusTokens.length; i++) {
+      let tmp = { x: "", y: [] as string[] };
       for (let j = i - halfWinSize; j < i + halfWinSize + 1; j++) {
-        if (j < 0 || j >= corpus.length) {
+        if (j < 0 || j >= corpusTokens.length) {
           tmp.y.push("");
         } else if (j == i) {
-          tmp.x = corpus[j];
+          tmp.x = corpusTokens[j];
         } else {
-          tmp.y.push(corpus[j]);
+          tmp.y.push(corpusTokens[j]);
         }
       }
       data.push(tmp);
@@ -186,20 +211,19 @@ class Word2Vector {
     return data;
   }
 
-  getOneHotVector(corpus) {
-    const unique = corpus.filter((v, i, a) => a.indexOf(v) === i);
-    const total = unique.length;
+  getOneHotVector(tokens: string[]) {
+    const total = tokens.length;
     console.log(`Number of unique tokens in corpus: ${total}`);
-    // console.log(unique);
+    // console.log(tokens);
     this.oneHotSize = total + 1;
-    let oneHotVectors = {};
+    let oneHotVectors = {} as { [key: string]: number[] };
     for (let i = 0; i < total + 1; i++) {
       let vector = Array(total + 1).fill(0);
       vector[i] = 1;
       if (i == total) {
         oneHotVectors[""] = vector;
       } else {
-        oneHotVectors[unique[i]] = vector;
+        oneHotVectors[tokens[i]] = vector;
       }
     }
 

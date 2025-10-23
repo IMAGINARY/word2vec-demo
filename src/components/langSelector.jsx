@@ -3,7 +3,7 @@ import locales from "../js/locales/locales";
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import locI18next from "loc-i18next";
-import { Word2Vector } from "../js/w2v.js";
+import { Word2Vector } from "../js/w2v.ts";
 
 // Filter here the languages to appear in the UI.
 const langList = locales
