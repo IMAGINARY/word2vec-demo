@@ -20,12 +20,12 @@ export function App() {
             <ErrorVisualization />
           </div>
 
-          <div className="col-md-5">
-            <VectorVisualization />
-          </div>
-
           <div className="col-md-4">
             <NeuralNetworkVisualization />
+          </div>
+
+          <div className="col-md-5">
+            <VectorVisualization />
           </div>
         </div>
       </div>

@@ -76,35 +76,11 @@ class Word2Vector {
   }
 
   initNetwork() {
-    console.log("Initializing network...");
+    this.nn.initializeWeights();
 
-    for (var x = 0; x < this.nn.inputLayer.length; x++) {
-      for (var y = 0; y < this.nn.hiddenLayer.length; y++) {
-        const w = Math.random();
-        this.nn.firstEdges[x * this.nn.hiddenLayer.length + y] = {
-          i: x,
-          j: y,
-          weight: w,
-        };
-        this.nn.firstMatrix[x][y] = w;
-      }
-    }
-
-    for (var x = 0; x < this.nn.hiddenLayer.length; x++) {
-      for (var y = 0; y < this.nn.outputLayer.length; y++) {
-        const w = Math.random();
-        this.nn.secondEdges[x * this.nn.outputLayer.length + y] = {
-          i: x,
-          j: y,
-          weight: w,
-        };
-        this.nn.secondMatrix[x][y] = w;
-      }
-    }
     this.currentDataPoint = 0;
     this.currentEpoch = 0;
     this.currentEpochError = 0.0;
-    console.log("Done initializing network.");
   }
 
   trainDataPoint() {

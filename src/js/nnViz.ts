@@ -198,7 +198,7 @@ class NeuralNetworkVisualization {
       .on("mouseover", (d) => this.tooltip.style("visibility", "visible"))
       .on("mousemove", (ev, d) => {
         this.tooltip
-          .text(d)
+          .text(d.toFixed(3))
           .style("top", ev.pageY - 10 + "px")
           .style("left", ev.pageX + 10 + "px");
       })
@@ -220,7 +220,7 @@ class NeuralNetworkVisualization {
       })
       .on("mousemove", (ev, d) => {
         return this.tooltip
-          .text(d)
+          .text(d.toFixed(3))
           .style("top", ev.pageY - 10 + "px")
           .style("left", ev.pageX + 10 + "px");
       })
@@ -247,7 +247,7 @@ class NeuralNetworkVisualization {
       })
       .on("mousemove", (ev, d) => {
         this.tooltip
-          .text(d["weight"])
+          .text(d["weight"].toFixed(3))
           .style("top", ev.pageY - 10 + "px")
           .style("left", ev.pageX + 10 + "px");
       })
@@ -274,7 +274,7 @@ class NeuralNetworkVisualization {
       })
       .on("mousemove", (ev, d) => {
         this.tooltip
-          .text(d["weight"])
+          .text(d["weight"].toFixed(3))
           .style("top", ev.pageY - 10 + "px")
           .style("left", ev.pageX + 10 + "px");
       })

@@ -1,3 +1,5 @@
+import { init } from "loc-i18next";
+
 interface NeuralNetwork {
   inputLayer: number[];
   hiddenLayer: number[];
@@ -46,6 +48,27 @@ class NeuralNetwork {
     this.prevSecondMatrix = [...Array(this.hiddenLayer.length)].map((x) =>
       Array(this.outputLayer.length).fill(0)
     ); //last change in weights for momentum
+  }
+
+  initializeWeights() {
+    // Initialize weights with random values between -0.5 and 0.5
+    for (var i = 0; i < this.inputLayer.length; i++) {
+      for (var j = 0; j < this.hiddenLayer.length; j++) {
+        const weight = Math.random() - 0.5;
+        this.firstMatrix[i][j] = weight;
+        const index = i * this.hiddenLayer.length + j;
+        this.firstEdges[index] = { i: i, j: j, weight: weight };
+      }
+    }
+
+    for (var i = 0; i < this.hiddenLayer.length; i++) {
+      for (var j = 0; j < this.outputLayer.length; j++) {
+        const weight = Math.random() - 0.5;
+        this.secondMatrix[i][j] = weight;
+        const index = i * this.outputLayer.length + j;
+        this.secondEdges[index] = { i: i, j: j, weight: weight };
+      }
+    }
   }
 
   sigmoid(x: number) {
