@@ -1,11 +1,7 @@
-import { init } from "loc-i18next";
-
 interface NeuralNetwork {
   inputLayer: number[];
   hiddenLayer: number[];
   outputLayer: number[];
-  firstEdges: { i: number; j: number; weight: number }[];
-  secondEdges: { i: number; j: number; weight: number }[];
   firstMatrix: number[][];
   secondMatrix: number[][];
   prevFirstMatrix: number[][];
@@ -27,13 +23,6 @@ class NeuralNetwork {
     this.inputLayer = new Array(inputSize).fill(0.0);
     this.hiddenLayer = new Array(3).fill(0.0);
     this.outputLayer = new Array(2 * inputSize).fill(0.0);
-
-    this.firstEdges = Array(
-      this.inputLayer.length * this.hiddenLayer.length
-    ).fill({});
-    this.secondEdges = Array(
-      this.hiddenLayer.length * this.outputLayer.length
-    ).fill({});
 
     this.firstMatrix = [...Array(this.inputLayer.length)].map((x) =>
       Array(this.hiddenLayer.length).fill(0)
@@ -57,7 +46,6 @@ class NeuralNetwork {
         const weight = Math.random() - 0.5;
         this.firstMatrix[i][j] = weight;
         const index = i * this.hiddenLayer.length + j;
-        this.firstEdges[index] = { i: i, j: j, weight: weight };
       }
     }
 
@@ -66,7 +54,6 @@ class NeuralNetwork {
         const weight = Math.random() - 0.5;
         this.secondMatrix[i][j] = weight;
         const index = i * this.outputLayer.length + j;
-        this.secondEdges[index] = { i: i, j: j, weight: weight };
       }
     }
   }
@@ -204,13 +191,6 @@ class NeuralNetwork {
     for (var i = 0; i < this.hiddenLayer.length; i++) {
       for (var j = 0; j < this.outputLayer.length; j++) {
         const change = outputDeltas[j] * this.hiddenLayer[i];
-
-        const index = this.secondEdges.findIndex(
-          (edge) => edge.i === i && edge.j === j
-        );
-        this.secondEdges[index].weight +=
-          N * change + M * this.prevSecondMatrix[i][j];
-
         this.secondMatrix[i][j] += N * change + M * this.prevSecondMatrix[i][j];
         this.prevSecondMatrix[i][j] = change;
       }
@@ -219,13 +199,6 @@ class NeuralNetwork {
     for (var i = 0; i < this.inputLayer.length; i++) {
       for (var j = 0; j < this.hiddenLayer.length; j++) {
         const change = hiddenDeltas[j] * this.inputLayer[i];
-
-        const index = this.firstEdges.findIndex(
-          (edge) => edge.i === i && edge.j === j
-        );
-        this.firstEdges[index].weight +=
-          N * change + M * this.prevFirstMatrix[i][j];
-
         this.firstMatrix[i][j] += N * change + M * this.prevFirstMatrix[i][j];
         this.prevFirstMatrix[i][j] = change;
       }

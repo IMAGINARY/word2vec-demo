@@ -16,10 +16,12 @@ interface NeuralNetworkVisualization {
   textOutput1: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   textOutput2: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   inputEdges: d3.Selection<SVGLineElement, any, any, any>;
+  nnInputLabels: d3.Selection<SVGTextElement, any, any, any>;
   hiddenEdges: d3.Selection<SVGLineElement, any, any, any>;
   nnInput: d3.Selection<SVGCircleElement, any, any, any>;
   nnHidden: d3.Selection<SVGCircleElement, any, any, any>;
   nnOutput: d3.Selection<SVGCircleElement, any, any, any>;
+  nnOutputLabels: d3.Selection<SVGTextElement, any, any, any>;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
   dispose(): void;
   getPosY(i: number, len: number): number;
@@ -27,13 +29,16 @@ interface NeuralNetworkVisualization {
 }
 
 class NeuralNetworkVisualization {
-  constructor(nn: NeuralNetwork) {
+  constructor(nn: NeuralNetwork, tokenLabels: string[]) {
+    const labels = tokenLabels.concat(["[NULL]"]); // for padding token
     this.nn = nn;
     this.oneHotSize = this.nn.oneHotSize;
     this.width = 800;
     this.height = 976;
 
     this.status = "paused"; // training, prediction, paused
+
+    const sizeOfText = 24;
 
     this.nnSvg = d3
       .select("div#w2v-vis")
@@ -45,33 +50,102 @@ class NeuralNetworkVisualization {
     this.textInput = this.nnSvg
       .append("g")
       .classed("input-text", true)
-      .append("text");
+      .append("text")
+      .attr("x", this.width / 8)
+      .attr("y", this.getPosY(0, 1) + sizeOfText / 2)
+      .style("font-size", sizeOfText.toString() + "px")
+      .style("color", "black")
+      .style("text-anchor", "middle");
 
     this.textOutput1 = this.nnSvg
       .append("g")
       .classed("input-text", true)
-      .append("text");
+      .append("text")
+      .attr("x", (7 * this.width) / 8)
+      .attr(
+        "y",
+        this.getPosY(this.oneHotSize / 2, this.oneHotSize * 2) + sizeOfText / 2
+      )
+      .style("font-size", sizeOfText.toString() + "px")
+      .style("color", "black")
+      .style("text-anchor", "middle");
 
     this.textOutput2 = this.nnSvg
       .append("g")
       .classed("input-text", true)
-      .append("text");
+      .append("text")
+      .attr("x", (7 * this.width) / 8)
+      .attr(
+        "y",
+        this.getPosY(
+          this.oneHotSize + this.oneHotSize / 2,
+          this.oneHotSize * 2
+        ) +
+          sizeOfText / 2
+      )
+      .style("font-size", sizeOfText.toString() + "px")
+      .style("color", "black")
+      .style("text-anchor", "middle");
 
     this.inputEdges = this.nnSvg
       .selectAll("g.input-edge")
-      .data(this.nn.firstEdges)
+      .data(
+        this.nn.firstMatrix.flatMap((row, i) =>
+          row.map((weight, j) => ({ i, j, weight }))
+        )
+      )
       .enter()
       .append("g")
       .classed("input-edge", true)
-      .append("line");
+      .append("line")
+      .attr("x1", this.width / 4)
+      .attr("y1", (d) => this.getPosY(d["i"], this.nn.inputLayer.length))
+      .attr("x2", (2 * this.width) / 4)
+      .attr("y2", (d) => this.getPosY(d["j"], this.nn.hiddenLayer.length))
+      .attr("stroke", "#aaaaaa")
+      .attr("stroke-width", 3)
+      .on("mouseover", (d) => {
+        this.tooltip.style("visibility", "visible");
+      })
+      .on("mousemove", (ev, d) => {
+        this.tooltip
+          .text(d["weight"].toFixed(3))
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
 
     this.hiddenEdges = this.nnSvg
       .selectAll("g.hidden-edge")
-      .data(this.nn.secondEdges)
+      .data(
+        this.nn.secondMatrix.flatMap((row, i) =>
+          row.map((weight, j) => ({ i, j, weight }))
+        )
+      )
       .enter()
       .append("g")
       .classed("hidden-edge", true)
-      .append("line");
+      .append("line")
+      .attr("x1", (2 * this.width) / 4)
+      .attr("y1", (d) => this.getPosY(d["i"], this.nn.hiddenLayer.length))
+      .attr("x2", (3 * this.width) / 4)
+      .attr("y2", (d) => this.getPosY(d["j"], this.nn.outputLayer.length))
+      .attr("stroke", "#aaaaaa")
+      .attr("stroke-width", 3)
+      .on("mouseover", (d) => {
+        this.tooltip.style("visibility", "visible");
+      })
+      .on("mousemove", (ev, d) => {
+        this.tooltip
+          .text(d["weight"].toFixed(3))
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
 
     this.nnInput = this.nnSvg
       .selectAll("g.input-neuron")
@@ -79,7 +153,36 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("input-neuron", true)
-      .append("circle");
+      .append("circle")
+      .attr("cx", this.width / 4)
+      .attr("cy", (d, i) => this.getPosY(i, this.nn.inputLayer.length))
+      .attr("r", r)
+      .on("mouseover", (d) => {
+        this.tooltip.style("visibility", "visible");
+      })
+      .on("mousemove", (ev, d) => {
+        this.tooltip
+          .text(d)
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
+
+    this.nnInputLabels = this.nnSvg
+      .selectAll("g.input-neuron-label")
+      .data(labels)
+      .enter()
+      .append("g")
+      .classed("input-neuron-label", true)
+      .append("text")
+      .text((d) => d)
+      .attr("x", this.width / 4 - r - 5)
+      .attr("y", (d, i) => this.getPosY(i, this.nn.inputLayer.length) + 5)
+      .style("text-anchor", "end")
+      .style("font-size", "12px")
+      .style("color", "black");
 
     this.nnHidden = this.nnSvg
       .selectAll("g.hidden1-neuron")
@@ -87,7 +190,20 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("hidden1-neuron", true)
-      .append("circle");
+      .append("circle")
+      .attr("cx", (2 * this.width) / 4)
+      .attr("cy", (d, i) => this.getPosY(i, this.nn.hiddenLayer.length))
+      .attr("r", r)
+      .on("mouseover", (d) => this.tooltip.style("visibility", "visible"))
+      .on("mousemove", (ev, d) => {
+        this.tooltip
+          .text(d.toFixed(3))
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
 
     this.nnOutput = this.nnSvg
       .selectAll("g.hidden2-neuron")
@@ -95,7 +211,36 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("hidden2-neuron", true)
-      .append("circle");
+      .append("circle")
+      .attr("cx", (3 * this.width) / 4)
+      .attr("cy", (d, i) => this.getPosY(i, this.nn.outputLayer.length))
+      .attr("r", r)
+      .on("mouseover", (d) => {
+        this.tooltip.style("visibility", "visible");
+      })
+      .on("mousemove", (ev, d) => {
+        return this.tooltip
+          .text(d.toFixed(3))
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
+
+    this.nnOutputLabels = this.nnSvg
+      .selectAll("g.output-neuron-label")
+      .data(labels.concat(labels))
+      .enter()
+      .append("g")
+      .classed("output-neuron-label", true)
+      .append("text")
+      .text((d, i) => d)
+      .attr("x", (3 * this.width) / 4 + r + 5)
+      .attr("y", (d, i) => this.getPosY(i, this.nn.outputLayer.length) + 5)
+      .style("text-anchor", "start")
+      .style("font-size", "12px")
+      .style("color", "black");
 
     this.tooltip = d3
       .select("body")
@@ -130,156 +275,51 @@ class NeuralNetworkVisualization {
     const sizeOfText = 24;
     const widthOfText = 100;
 
-    this.textInput
-      .text(x)
-      .attr("x", this.width / 8)
-      .attr("y", this.getPosY(0, 1) + sizeOfText / 2)
-      .style("font-size", sizeOfText.toString() + "px")
-      .style("color", "black")
-      .style("text-anchor", "middle");
+    this.textInput.text(x);
+    this.textOutput1.text(y1);
+    this.textOutput2.text(y2);
 
-    this.textOutput1
-      .text(y1)
-      .attr("x", (7 * this.width) / 8)
-      .attr(
-        "y",
-        this.getPosY(this.oneHotSize / 2, this.oneHotSize * 2) + sizeOfText / 2
-      )
-      .style("font-size", sizeOfText.toString() + "px")
-      .style("color", "black")
-      .style("text-anchor", "middle");
+    this.nnInput.data(this.nn.inputLayer).style("fill", (d) => {
+      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
+      return "#" + c + c + c;
+    });
 
-    this.textOutput2
-      .text(y2)
-      .attr("x", (7 * this.width) / 8)
-      .attr(
-        "y",
-        this.getPosY(
-          this.oneHotSize + this.oneHotSize / 2,
-          this.oneHotSize * 2
-        ) +
-          sizeOfText / 2
-      )
-      .style("font-size", sizeOfText.toString() + "px")
-      .style("color", "black")
-      .style("text-anchor", "middle");
+    this.nnHidden.data(this.nn.hiddenLayer).style("fill", (d) => {
+      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
+      return "#" + c + c + c;
+    });
 
-    this.nnInput
-      .data(this.nn.inputLayer)
-      .attr("cx", this.width / 4)
-      .attr("cy", (d, i) => this.getPosY(i, this.nn.inputLayer.length))
-      .attr("r", r)
-      .style("fill", (d) => {
-        const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-        return "#" + c + c + c;
-      })
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d)
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
-
-    this.nnHidden
-      .data(this.nn.hiddenLayer)
-      .attr("cx", (2 * this.width) / 4)
-      .attr("cy", (d, i) => this.getPosY(i, this.nn.hiddenLayer.length))
-      .attr("r", r)
-      .style("fill", (d) => {
-        const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-        return "#" + c + c + c;
-      })
-      .on("mouseover", (d) => this.tooltip.style("visibility", "visible"))
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d.toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
-
-    this.nnOutput
-      .data(this.nn.outputLayer)
-      .attr("cx", (3 * this.width) / 4)
-      .attr("cy", (d, i) => this.getPosY(i, this.nn.outputLayer.length))
-      .attr("r", r)
-      .style("fill", (d) => {
-        const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-        return "#" + c + c + c;
-      })
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        return this.tooltip
-          .text(d.toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
+    this.nnOutput.data(this.nn.outputLayer).style("fill", (d) => {
+      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
+      return "#" + c + c + c;
+    });
 
     this.inputEdges
-      .data(this.nn.firstEdges)
-      .attr("x1", this.width / 4)
-      .attr("y1", (d) => this.getPosY(d["i"], this.nn.inputLayer.length))
-      .attr("x2", (2 * this.width) / 4)
-      .attr("y2", (d) => this.getPosY(d["j"], this.nn.hiddenLayer.length))
+      .data(
+        this.nn.firstMatrix.flatMap((row, i) =>
+          row.map((weight, j) => ({ i, j, weight }))
+        )
+      )
       .attr("stroke", (d) => {
         // console.log(d["weight"]);
         const c = Math.round(scaleEdge(d["weight"]))
           .toString(16)
           .padStart(2, "0");
         return "#" + c + c + c;
-      })
-      .attr("stroke-width", 3)
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d["weight"].toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
       });
 
     this.hiddenEdges
-      .data(this.nn.secondEdges)
-      .attr("x1", (2 * this.width) / 4)
-      .attr("y1", (d) => this.getPosY(d["i"], this.nn.hiddenLayer.length))
-      .attr("x2", (3 * this.width) / 4)
-      .attr("y2", (d) => this.getPosY(d["j"], this.nn.outputLayer.length))
+      .data(
+        this.nn.secondMatrix.flatMap((row, i) =>
+          row.map((weight, j) => ({ i, j, weight }))
+        )
+      )
       .attr("stroke", (d) => {
         // console.log(d["weight"]);
         const c = Math.round(scaleEdge(d["weight"]))
           .toString(16)
           .padStart(2, "0");
         return "#" + c + c + c;
-      })
-      .attr("stroke-width", 3)
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d["weight"].toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
       });
   }
 }

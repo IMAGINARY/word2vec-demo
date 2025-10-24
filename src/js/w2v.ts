@@ -67,7 +67,7 @@ class Word2Vector {
     console.log("Training data: ", this.data);
 
     this.nn = new NeuralNetwork(this.oneHotSize);
-    this.nnViz = new NeuralNetworkVisualization(this.nn);
+    this.nnViz = new NeuralNetworkVisualization(this.nn, this.tokens);
     this.vecViz = new VectorVisualization(this.nn);
     this.errViz = new ErrorChart();
     this.textViz = new TextVisualization(this.corpus);
@@ -146,7 +146,7 @@ class Word2Vector {
     this.autoTrainingMode = false;
 
     this.nnViz.dispose();
-    this.nnViz = new NeuralNetworkVisualization(this.nn);
+    this.nnViz = new NeuralNetworkVisualization(this.nn, this.tokens);
 
     this.vecViz.dispose();
     this.vecViz = new VectorVisualization(this.nn);
