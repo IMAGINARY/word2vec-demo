@@ -86,13 +86,12 @@ class Word2Vector {
   trainDataPoint() {
     const iter = 20;
 
-    this.nn.feedforward(this.vectors[this.data[this.currentDataPoint].x]);
-
-    const y = this.vectors[this.data[this.currentDataPoint].y[0]].concat(
+    const xvec = this.vectors[this.data[this.currentDataPoint].x];
+    const yvec = this.vectors[this.data[this.currentDataPoint].y[0]].concat(
       this.vectors[this.data[this.currentDataPoint].y[1]]
     );
 
-    this.currentEpochError += this.nn.backpropagate(y);
+    this.currentEpochError += this.nn.trainDataPoint(xvec, yvec);
 
     this.nnViz.update(
       this.data[this.currentDataPoint].x,

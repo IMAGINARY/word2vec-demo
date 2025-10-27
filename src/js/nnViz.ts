@@ -188,7 +188,7 @@ class NeuralNetworkVisualization {
 
     this.nnOutputTraining = this.nnSvg
       .selectAll("g.hidden2-neuron-training")
-      .data(this.nn.outputLayer)
+      .data(this.nn.outputTraining)
       .enter()
       .append("g")
       .classed("hidden2-neuron-training", true)
@@ -288,6 +288,11 @@ class NeuralNetworkVisualization {
     });
 
     this.nnOutput.data(this.nn.outputLayer).style("fill", (d) => {
+      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
+      return "#" + c + c + c;
+    });
+
+    this.nnOutputTraining.data(this.nn.outputTraining).style("fill", (d) => {
       const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
       return "#" + c + c + c;
     });

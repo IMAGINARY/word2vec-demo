@@ -2,6 +2,7 @@ interface NeuralNetwork {
   inputLayer: number[];
   hiddenLayer: number[];
   outputLayer: number[];
+  outputTraining: number[];
   firstMatrix: number[][];
   secondMatrix: number[][];
   prevFirstMatrix: number[][];
@@ -23,6 +24,7 @@ class NeuralNetwork {
     this.inputLayer = new Array(inputSize).fill(0.0);
     this.hiddenLayer = new Array(3).fill(0.0);
     this.outputLayer = new Array(2 * inputSize).fill(0.0);
+    this.outputTraining = new Array(2 * inputSize).fill(0.0);
 
     this.firstMatrix = [...Array(this.inputLayer.length)].map((x) =>
       Array(this.hiddenLayer.length).fill(0)
@@ -205,6 +207,14 @@ class NeuralNetwork {
     }
 
     return totalErrors / y.length;
+  }
+
+  trainDataPoint(x: number[], y: number[]) {
+    this.inputLayer = x;
+    this.outputTraining = y;
+    this.feedforward(x);
+    const error = this.backpropagate(y);
+    return error;
   }
 }
 
