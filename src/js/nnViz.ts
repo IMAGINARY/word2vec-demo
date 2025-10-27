@@ -21,6 +21,7 @@ interface NeuralNetworkVisualization {
   nnInput: d3.Selection<SVGCircleElement, any, any, any>;
   nnHidden: d3.Selection<SVGCircleElement, any, any, any>;
   nnOutput: d3.Selection<SVGCircleElement, any, any, any>;
+  nnOutputTraining: d3.Selection<SVGCircleElement, any, any, any>;
   nnOutputLabels: d3.Selection<SVGTextElement, any, any, any>;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
   dispose(): void;
@@ -51,7 +52,7 @@ class NeuralNetworkVisualization {
       .append("g")
       .classed("input-text", true)
       .append("text")
-      .attr("x", this.width / 8)
+      .attr("x", (1 / 5) * this.width)
       .attr("y", this.getPosY(0, 1) + sizeOfText / 2)
       .style("font-size", sizeOfText.toString() + "px")
       .style("color", "black")
@@ -61,7 +62,7 @@ class NeuralNetworkVisualization {
       .append("g")
       .classed("input-text", true)
       .append("text")
-      .attr("x", (7 * this.width) / 8)
+      .attr("x", (4 / 5) * this.width)
       .attr(
         "y",
         this.getPosY(this.oneHotSize / 2, this.oneHotSize * 2) + sizeOfText / 2
@@ -74,7 +75,7 @@ class NeuralNetworkVisualization {
       .append("g")
       .classed("input-text", true)
       .append("text")
-      .attr("x", (7 * this.width) / 8)
+      .attr("x", (4 / 5) * this.width)
       .attr(
         "y",
         this.getPosY(
@@ -97,25 +98,14 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("input-edge", true)
+      .classed("edge", true)
       .append("line")
-      .attr("x1", this.width / 4)
+      .attr("x1", (1 / 5) * this.width)
       .attr("y1", (d) => this.getPosY(d["i"], this.nn.inputLayer.length))
-      .attr("x2", (2 * this.width) / 4)
+      .attr("x2", (2 / 5) * this.width)
       .attr("y2", (d) => this.getPosY(d["j"], this.nn.hiddenLayer.length))
       .attr("stroke", "#aaaaaa")
-      .attr("stroke-width", 3)
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d["weight"].toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
+      .attr("stroke-width", 3);
 
     this.hiddenEdges = this.nnSvg
       .selectAll("g.hidden-edge")
@@ -127,25 +117,14 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("hidden-edge", true)
+      .classed("edge", true)
       .append("line")
-      .attr("x1", (2 * this.width) / 4)
+      .attr("x1", (2 / 5) * this.width)
       .attr("y1", (d) => this.getPosY(d["i"], this.nn.hiddenLayer.length))
-      .attr("x2", (3 * this.width) / 4)
+      .attr("x2", (3 / 5) * this.width)
       .attr("y2", (d) => this.getPosY(d["j"], this.nn.outputLayer.length))
       .attr("stroke", "#aaaaaa")
-      .attr("stroke-width", 3)
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d["weight"].toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
+      .attr("stroke-width", 3);
 
     this.nnInput = this.nnSvg
       .selectAll("g.input-neuron")
@@ -153,22 +132,11 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("input-neuron", true)
+      .classed("neuron", true)
       .append("circle")
-      .attr("cx", this.width / 4)
+      .attr("cx", (1 / 5) * this.width)
       .attr("cy", (d, i) => this.getPosY(i, this.nn.inputLayer.length))
-      .attr("r", r)
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d)
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
+      .attr("r", r);
 
     this.nnInputLabels = this.nnSvg
       .selectAll("g.input-neuron-label")
@@ -178,7 +146,7 @@ class NeuralNetworkVisualization {
       .classed("input-neuron-label", true)
       .append("text")
       .text((d) => d)
-      .attr("x", this.width / 4 - r - 5)
+      .attr("x", (1 / 5) * this.width - r - 5)
       .attr("y", (d, i) => this.getPosY(i, this.nn.inputLayer.length) + 5)
       .style("text-anchor", "end")
       .style("font-size", "12px")
@@ -190,8 +158,9 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("hidden1-neuron", true)
+      .classed("neuron", true)
       .append("circle")
-      .attr("cx", (2 * this.width) / 4)
+      .attr("cx", (2 / 5) * this.width)
       .attr("cy", (d, i) => this.getPosY(i, this.nn.hiddenLayer.length))
       .attr("r", r)
       .on("mouseover", (d) => this.tooltip.style("visibility", "visible"))
@@ -211,22 +180,23 @@ class NeuralNetworkVisualization {
       .enter()
       .append("g")
       .classed("hidden2-neuron", true)
+      .classed("neuron", true)
       .append("circle")
-      .attr("cx", (3 * this.width) / 4)
+      .attr("cx", (3 / 5) * this.width)
       .attr("cy", (d, i) => this.getPosY(i, this.nn.outputLayer.length))
-      .attr("r", r)
-      .on("mouseover", (d) => {
-        this.tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", (ev, d) => {
-        return this.tooltip
-          .text(d.toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
+      .attr("r", r);
+
+    this.nnOutputTraining = this.nnSvg
+      .selectAll("g.hidden2-neuron-training")
+      .data(this.nn.outputLayer)
+      .enter()
+      .append("g")
+      .classed("hidden2-neuron-training", true)
+      .classed("neuron", true)
+      .append("circle")
+      .attr("cx", (4 / 5) * this.width)
+      .attr("cy", (d, i) => this.getPosY(i, this.nn.outputLayer.length))
+      .attr("r", r);
 
     this.nnOutputLabels = this.nnSvg
       .selectAll("g.output-neuron-label")
@@ -236,7 +206,7 @@ class NeuralNetworkVisualization {
       .classed("output-neuron-label", true)
       .append("text")
       .text((d, i) => d)
-      .attr("x", (3 * this.width) / 4 + r + 5)
+      .attr("x", (3 / 5) * this.width + r + 5)
       .attr("y", (d, i) => this.getPosY(i, this.nn.outputLayer.length) + 5)
       .style("text-anchor", "start")
       .style("font-size", "12px")
@@ -253,6 +223,34 @@ class NeuralNetworkVisualization {
       .style("z-index", "10")
       .style("visibility", "hidden")
       .text("");
+
+    d3.selectAll(".edge line")
+      .on("mouseover", () => {
+        this.tooltip.style("visibility", "visible");
+      })
+      .on("mousemove", (ev, d: any) => {
+        this.tooltip
+          .text(d["weight"].toFixed(3))
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
+
+    d3.selectAll(".neuron circle")
+      .on("mouseover", () => {
+        this.tooltip.style("visibility", "visible");
+      })
+      .on("mousemove", (ev, d: any) => {
+        return this.tooltip
+          .text(d.toFixed(3))
+          .style("top", ev.pageY - 10 + "px")
+          .style("left", ev.pageX + 10 + "px");
+      })
+      .on("mouseout", (d) => {
+        this.tooltip.style("visibility", "hidden");
+      });
 
     // this.update();
   }
