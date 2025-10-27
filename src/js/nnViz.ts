@@ -63,7 +63,10 @@ class NeuralNetworkVisualization {
     this.nnHeight = 2 * this.oneHotSize * step;
     this.captionHeight = 100;
     this.nnMargin = 20;
-    this.height = this.nnHeight + this.captionHeight + 2 * this.nnMargin;
+    this.height = this.nnHeight + this.captionHeight + 2 * this.nnMargin + 100;
+
+    const bottomLineY =
+      this.captionHeight + this.nnHeight + 2 * this.nnMargin + 20;
 
     this.status = "paused"; // training, prediction, paused
 
@@ -75,6 +78,37 @@ class NeuralNetworkVisualization {
       .append("svg")
       .attr("viewBox", `0 0 ${this.width} ${this.height}`)
       .attr("style", "background-color: #ADD7F6; width:100%; height: auto;");
+
+    this.nnSvg.append("g").node()!.innerHTML = `
+      <line x1="${(1 / 5) * this.width - 50}" y1="${bottomLineY - 30}" x2="${
+      (4 / 5) * this.width + 50
+    }" y2="${bottomLineY - 30}" stroke="black" stroke-width="2"/>
+
+      <g transform="translate(${(1 / 5) * this.width}, ${bottomLineY})">
+      <text class="nnVizCaption">Input</text>
+      </g>
+
+      <g transform="translate(${(2 / 5) * this.width}, ${bottomLineY})">
+      <text class="nnVizCaption">
+        <tspan x="0" text-anchor="middle">Hidden layer</tspan> 
+        <tspan x="0" dy="1.2em" text-anchor="middle"> (vector) </tspan>
+      </text>
+      </g>
+
+      <g transform="translate(${(3 / 5) * this.width}, ${bottomLineY})">
+      <text class="nnVizCaption">
+        <tspan x="0" text-anchor="middle">Output</tspan> 
+        <tspan x="0" dy="1.2em" text-anchor="middle"> (prediction) </tspan>
+      </text>
+      </g>
+      
+      <g transform="translate(${(4 / 5) * this.width}, ${bottomLineY})">
+      <text class="nnVizCaption">
+        <tspan x="0" text-anchor="middle">Goal</tspan> 
+        <tspan x="0" dy="1.2em" text-anchor="middle"> (training) </tspan>
+      </text>
+      </g>
+    `;
 
     this.textInput = this.nnSvg
       .append("g")
