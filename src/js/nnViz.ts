@@ -46,6 +46,7 @@ interface NeuralNetworkVisualization {
   nnInput: d3.Selection<SVGCircleElement, any, any, any>;
   nnHidden: d3.Selection<SVGCircleElement, any, any, any>;
   nnOutput: d3.Selection<SVGCircleElement, any, any, any>;
+  nnOutputPercentages: d3.Selection<SVGRectElement, any, any, any>;
   nnOutputTraining: d3.Selection<SVGCircleElement, any, any, any>;
   nnOutputLabels: d3.Selection<SVGTextElement, any, any, any>;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
@@ -264,6 +265,24 @@ class NeuralNetworkVisualization {
       )
       .attr("r", r);
 
+    this.nnOutputPercentages = this.nnSvg
+      .selectAll("g.hidden2-neuron-percentage")
+      .data(this.nn.outputLayer)
+      .enter()
+      .append("g")
+
+      .append("rect")
+      .attr("x", (3 / 5) * this.width + r + 20)
+      .attr(
+        "y",
+        (d, i) =>
+          getPosY(i, this.nn.outputLayer.length, this.nnHeight, this.nnMargin) -
+          r
+      )
+      .attr("width", (d) => d * 100)
+      .attr("height", r * 2)
+      .attr("fill", "#FF7F0E");
+
     this.nnOutputTraining = this.nnSvg
       .selectAll("g.hidden2-neuron-training")
       .data(this.nn.outputTraining)
@@ -286,7 +305,7 @@ class NeuralNetworkVisualization {
       .classed("output-neuron-label", true)
       .append("text")
       .text((d, i) => d)
-      .attr("x", (3 / 5) * this.width + r + 5)
+      .attr("x", (4 / 5) * this.width + r + 5)
       .attr("y", (d, i) =>
         getPosY(i, this.nn.outputLayer.length, this.nnHeight, this.nnMargin)
       )
@@ -362,7 +381,6 @@ class NeuralNetworkVisualization {
       (d) => `${this.labels[d.index]} (${(d.value * 100).toFixed(1)}%)`
     );
 
-    console.log("Predicted text: ", predictedText);
     return predictedText;
   };
 
@@ -389,6 +407,10 @@ class NeuralNetworkVisualization {
     this.nnOutput
       .data(this.nn.outputLayer)
       .style("fill", (d) => scaleNeuron(d));
+
+    this.nnOutputPercentages
+      .data(this.nn.outputLayer)
+      .attr("width", (d) => d * 100);
 
     this.nnOutputTraining
       .data(this.nn.outputTraining)
