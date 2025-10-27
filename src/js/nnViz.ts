@@ -1,18 +1,43 @@
 import * as d3 from "d3";
 import type { NeuralNetwork } from "./NeuralNetwork";
 
-const scaleNeuron = d3.scaleLinear().domain([0.0, 1.0]).range([0, 255]);
-const scaleEdge = d3.scaleLinear().domain([-5.5, 5.5]).range([0, 255]);
-const r = 10;
+const scaleNeuron = d3
+  .scaleLinear<string>()
+  .domain([0.0, 1.0])
+  .range(["black", "white"]);
+
+const scaleEdge = d3
+  .scaleLinear<string>()
+  .domain([-5.5, 5.5])
+  .range(["black", "white"]);
+
+const r = 10; // radius of neuron circle
+const step = 30; // vertical distance between neurons
+
+/** Calculate Y position of item i of a total of nItems items,
+ * so that the items are centered in a container of
+ * height "height", starting from position "offset"
+ */
+const getPosY = (i: number, nItems: number, height: number, offset: number) => {
+  const mid = offset + height / 2;
+  const startPos = mid - (nItems * step) / 2 + step / 2;
+  return startPos + i * step;
+};
 
 interface NeuralNetworkVisualization {
   nn: NeuralNetwork;
   oneHotSize: number;
+  labels: string[];
   width: number;
   height: number;
+  nnHeight: number;
+  captionHeight: number;
+  nnMargin: number;
   status: string;
   nnSvg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
   textInput: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
+  textHidden: d3.Selection<SVGTextElement, any, any, any>;
+  textPrediction: d3.Selection<SVGTextElement, any, any, any>;
   textOutput1: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   textOutput2: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   inputEdges: d3.Selection<SVGLineElement, any, any, any>;
@@ -25,17 +50,19 @@ interface NeuralNetworkVisualization {
   nnOutputLabels: d3.Selection<SVGTextElement, any, any, any>;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
   dispose(): void;
-  getPosY(i: number, len: number): number;
   update(x: string, y1: string, y2: string): void;
 }
 
 class NeuralNetworkVisualization {
   constructor(nn: NeuralNetwork, tokenLabels: string[]) {
-    const labels = tokenLabels.concat(["[NULL]"]); // for padding token
+    this.labels = tokenLabels.concat(["[NULL]"]); // for padding token
     this.nn = nn;
     this.oneHotSize = this.nn.oneHotSize;
     this.width = 800;
-    this.height = 976;
+    this.nnHeight = 2 * this.oneHotSize * step;
+    this.captionHeight = 100;
+    this.nnMargin = 20;
+    this.height = this.nnHeight + this.captionHeight + 2 * this.nnMargin;
 
     this.status = "paused"; // training, prediction, paused
 
@@ -53,19 +80,37 @@ class NeuralNetworkVisualization {
       .classed("input-text", true)
       .append("text")
       .attr("x", (1 / 5) * this.width)
-      .attr("y", this.getPosY(0, 1) + sizeOfText / 2)
+      .attr(
+        "y",
+        getPosY(0, 1, this.captionHeight, this.nnHeight + 2 * this.nnMargin)
+      )
+      .style("font-size", sizeOfText.toString() + "px")
+      .style("color", "black")
+      .style("text-anchor", "middle");
+
+    this.textPrediction = this.nnSvg
+      .selectAll("g.prediction-text")
+      .data([0, 0]) //dummy data for two output predictions
+      .enter()
+      .append("g")
+      .classed("prediction-text", true)
+      .append("text")
+      .attr("x", (3 / 5) * this.width)
+      .attr("y", (d, i) =>
+        getPosY(i, 2, this.captionHeight, this.nnHeight + 2 * this.nnMargin)
+      )
       .style("font-size", sizeOfText.toString() + "px")
       .style("color", "black")
       .style("text-anchor", "middle");
 
     this.textOutput1 = this.nnSvg
       .append("g")
-      .classed("input-text", true)
+      .classed("output-text", true)
       .append("text")
       .attr("x", (4 / 5) * this.width)
       .attr(
         "y",
-        this.getPosY(this.oneHotSize / 2, this.oneHotSize * 2) + sizeOfText / 2
+        getPosY(0, 2, this.captionHeight, this.nnHeight + 2 * this.nnMargin)
       )
       .style("font-size", sizeOfText.toString() + "px")
       .style("color", "black")
@@ -78,11 +123,22 @@ class NeuralNetworkVisualization {
       .attr("x", (4 / 5) * this.width)
       .attr(
         "y",
-        this.getPosY(
-          this.oneHotSize + this.oneHotSize / 2,
-          this.oneHotSize * 2
-        ) +
-          sizeOfText / 2
+        getPosY(1, 2, this.captionHeight, this.nnHeight + 2 * this.nnMargin)
+      )
+      .style("font-size", sizeOfText.toString() + "px")
+      .style("color", "black")
+      .style("text-anchor", "middle");
+
+    this.textHidden = this.nnSvg
+      .selectAll("g.hidden-text")
+      .data(this.nn.hiddenLayer)
+      .enter()
+      .append("g")
+      .classed("hidden-text", true)
+      .append("text")
+      .attr("x", (2 / 5) * this.width)
+      .attr("y", (d, i) =>
+        getPosY(i, 3, this.captionHeight, this.nnHeight + 2 * this.nnMargin)
       )
       .style("font-size", sizeOfText.toString() + "px")
       .style("color", "black")
@@ -101,9 +157,18 @@ class NeuralNetworkVisualization {
       .classed("edge", true)
       .append("line")
       .attr("x1", (1 / 5) * this.width)
-      .attr("y1", (d) => this.getPosY(d["i"], this.nn.inputLayer.length))
+      .attr("y1", (d) =>
+        getPosY(d["i"], this.nn.inputLayer.length, this.nnHeight, this.nnMargin)
+      )
       .attr("x2", (2 / 5) * this.width)
-      .attr("y2", (d) => this.getPosY(d["j"], this.nn.hiddenLayer.length))
+      .attr("y2", (d) =>
+        getPosY(
+          d["j"],
+          this.nn.hiddenLayer.length,
+          this.nnHeight,
+          this.nnMargin
+        )
+      )
       .attr("stroke", "#aaaaaa")
       .attr("stroke-width", 3);
 
@@ -120,9 +185,23 @@ class NeuralNetworkVisualization {
       .classed("edge", true)
       .append("line")
       .attr("x1", (2 / 5) * this.width)
-      .attr("y1", (d) => this.getPosY(d["i"], this.nn.hiddenLayer.length))
+      .attr("y1", (d) =>
+        getPosY(
+          d["i"],
+          this.nn.hiddenLayer.length,
+          this.nnHeight,
+          this.nnMargin
+        )
+      )
       .attr("x2", (3 / 5) * this.width)
-      .attr("y2", (d) => this.getPosY(d["j"], this.nn.outputLayer.length))
+      .attr("y2", (d) =>
+        getPosY(
+          d["j"],
+          this.nn.outputLayer.length,
+          this.nnHeight,
+          this.nnMargin
+        )
+      )
       .attr("stroke", "#aaaaaa")
       .attr("stroke-width", 3);
 
@@ -135,20 +214,25 @@ class NeuralNetworkVisualization {
       .classed("neuron", true)
       .append("circle")
       .attr("cx", (1 / 5) * this.width)
-      .attr("cy", (d, i) => this.getPosY(i, this.nn.inputLayer.length))
+      .attr("cy", (d, i) =>
+        getPosY(i, this.nn.inputLayer.length, this.nnHeight, this.nnMargin)
+      )
       .attr("r", r);
 
     this.nnInputLabels = this.nnSvg
       .selectAll("g.input-neuron-label")
-      .data(labels)
+      .data(this.labels)
       .enter()
       .append("g")
       .classed("input-neuron-label", true)
       .append("text")
       .text((d) => d)
       .attr("x", (1 / 5) * this.width - r - 5)
-      .attr("y", (d, i) => this.getPosY(i, this.nn.inputLayer.length) + 5)
+      .attr("y", (d, i) =>
+        getPosY(i, this.nn.inputLayer.length, this.nnHeight, this.nnMargin)
+      )
       .style("text-anchor", "end")
+      .style("alignment-baseline", "middle")
       .style("font-size", "12px")
       .style("color", "black");
 
@@ -161,18 +245,10 @@ class NeuralNetworkVisualization {
       .classed("neuron", true)
       .append("circle")
       .attr("cx", (2 / 5) * this.width)
-      .attr("cy", (d, i) => this.getPosY(i, this.nn.hiddenLayer.length))
-      .attr("r", r)
-      .on("mouseover", (d) => this.tooltip.style("visibility", "visible"))
-      .on("mousemove", (ev, d) => {
-        this.tooltip
-          .text(d.toFixed(3))
-          .style("top", ev.pageY - 10 + "px")
-          .style("left", ev.pageX + 10 + "px");
-      })
-      .on("mouseout", (d) => {
-        this.tooltip.style("visibility", "hidden");
-      });
+      .attr("cy", (d, i) =>
+        getPosY(i, this.nn.hiddenLayer.length, this.nnHeight, this.nnMargin)
+      )
+      .attr("r", r);
 
     this.nnOutput = this.nnSvg
       .selectAll("g.hidden2-neuron")
@@ -183,7 +259,9 @@ class NeuralNetworkVisualization {
       .classed("neuron", true)
       .append("circle")
       .attr("cx", (3 / 5) * this.width)
-      .attr("cy", (d, i) => this.getPosY(i, this.nn.outputLayer.length))
+      .attr("cy", (d, i) =>
+        getPosY(i, this.nn.outputLayer.length, this.nnHeight, this.nnMargin)
+      )
       .attr("r", r);
 
     this.nnOutputTraining = this.nnSvg
@@ -195,20 +273,25 @@ class NeuralNetworkVisualization {
       .classed("neuron", true)
       .append("circle")
       .attr("cx", (4 / 5) * this.width)
-      .attr("cy", (d, i) => this.getPosY(i, this.nn.outputLayer.length))
+      .attr("cy", (d, i) =>
+        getPosY(i, this.nn.outputLayer.length, this.nnHeight, this.nnMargin)
+      )
       .attr("r", r);
 
     this.nnOutputLabels = this.nnSvg
       .selectAll("g.output-neuron-label")
-      .data(labels.concat(labels))
+      .data(this.labels.concat(this.labels))
       .enter()
       .append("g")
       .classed("output-neuron-label", true)
       .append("text")
       .text((d, i) => d)
       .attr("x", (3 / 5) * this.width + r + 5)
-      .attr("y", (d, i) => this.getPosY(i, this.nn.outputLayer.length) + 5)
+      .attr("y", (d, i) =>
+        getPosY(i, this.nn.outputLayer.length, this.nnHeight, this.nnMargin)
+      )
       .style("text-anchor", "start")
+      .style("alignment-baseline", "middle")
       .style("font-size", "12px")
       .style("color", "black");
 
@@ -259,43 +342,57 @@ class NeuralNetworkVisualization {
     this.nnSvg.remove();
   }
 
-  getPosY(i: number, len: number) {
-    const mid = this.height / 2;
-    const step = 15;
-    const halfStep = step / 2;
-    const numberOfNeuron = len / 2;
-    const startPos =
-      mid - ((numberOfNeuron + numberOfNeuron) * step + halfStep);
-    return startPos + i * 2 * step;
-  }
+  predictions = (outputs: number[]) => {
+    const sections = [
+      outputs.slice(0, this.oneHotSize),
+      outputs.slice(this.oneHotSize),
+    ];
+
+    const maxProb = sections.map(
+      (section) =>
+        section
+          .map((d, i) => ({ index: i, value: d }))
+          .reduce((max, curr) => (curr.value > max.value ? curr : max), {
+            index: -1,
+            value: -Infinity,
+          }) // index of max value in each section;
+    );
+
+    const predictedText = maxProb.map(
+      (d) => `${this.labels[d.index]} (${(d.value * 100).toFixed(1)}%)`
+    );
+
+    console.log("Predicted text: ", predictedText);
+    return predictedText;
+  };
 
   update(x: string, y1: string, y2: string) {
     const sizeOfText = 24;
     const widthOfText = 100;
 
+    this.predictions(this.nn.outputLayer);
+
     this.textInput.text(x);
+    this.textHidden.data(this.nn.hiddenLayer).text((d) => d.toFixed(3));
+    this.textPrediction
+      .data(this.predictions(this.nn.outputLayer))
+      .text((d) => d);
     this.textOutput1.text(y1);
     this.textOutput2.text(y2);
 
-    this.nnInput.data(this.nn.inputLayer).style("fill", (d) => {
-      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-      return "#" + c + c + c;
-    });
+    this.nnInput.data(this.nn.inputLayer).style("fill", (d) => scaleNeuron(d));
 
-    this.nnHidden.data(this.nn.hiddenLayer).style("fill", (d) => {
-      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-      return "#" + c + c + c;
-    });
+    this.nnHidden
+      .data(this.nn.hiddenLayer)
+      .style("fill", (d) => scaleNeuron(d));
 
-    this.nnOutput.data(this.nn.outputLayer).style("fill", (d) => {
-      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-      return "#" + c + c + c;
-    });
+    this.nnOutput
+      .data(this.nn.outputLayer)
+      .style("fill", (d) => scaleNeuron(d));
 
-    this.nnOutputTraining.data(this.nn.outputTraining).style("fill", (d) => {
-      const c = Math.round(scaleNeuron(d)).toString(16).padStart(2, "0");
-      return "#" + c + c + c;
-    });
+    this.nnOutputTraining
+      .data(this.nn.outputTraining)
+      .style("fill", (d) => scaleNeuron(d));
 
     this.inputEdges
       .data(
@@ -303,13 +400,7 @@ class NeuralNetworkVisualization {
           row.map((weight, j) => ({ i, j, weight }))
         )
       )
-      .attr("stroke", (d) => {
-        // console.log(d["weight"]);
-        const c = Math.round(scaleEdge(d["weight"]))
-          .toString(16)
-          .padStart(2, "0");
-        return "#" + c + c + c;
-      });
+      .attr("stroke", (d) => scaleEdge(d["weight"]));
 
     this.hiddenEdges
       .data(
@@ -317,13 +408,7 @@ class NeuralNetworkVisualization {
           row.map((weight, j) => ({ i, j, weight }))
         )
       )
-      .attr("stroke", (d) => {
-        // console.log(d["weight"]);
-        const c = Math.round(scaleEdge(d["weight"]))
-          .toString(16)
-          .padStart(2, "0");
-        return "#" + c + c + c;
-      });
+      .attr("stroke", (d) => scaleEdge(d["weight"]));
   }
 }
 
