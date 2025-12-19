@@ -10,7 +10,7 @@ const es = {
       ErrorOverEpoch: "Error sobre Epoch",
       VectorSpace: "Espacio vectorial",
       nnVisualization: "Visualización de la red neuronal",
-      corpusText: `Como marisco en España. Bebo café en Italia. Como pescado en Japón. Como pasta en Italia. Bebo cerveza en Alemania. Bebo té en España. Como marisco en Japón. Bebo café en Alemania. Como pescado en Italia. Como pasta en España. Bebo cerveza en Japón. Bebo té en Japón.`,
+      corpusText: `Juego al tenis los lunes. Hago natación los martes. Juego al fútbol los miércoles. Juego al tenis los jueves. Juego al baloncesto los viernes. Hago natación los sábados. Hago atletismo los domingos. Juego al fútbol los lunes. Juego al tenis los miércoles. Juego al baloncesto los jueves. Juego al voleibol los viernes. Hago atletismo los sábados.`,
       train: "Entrenar",
       pause: "Pausar",
       reset: "Reiniciar",
