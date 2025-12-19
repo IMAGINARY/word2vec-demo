@@ -55,6 +55,7 @@ interface NeuralNetworkVisualization {
 }
 
 class NeuralNetworkVisualization {
+  nnSvg?: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
   constructor(nn: NeuralNetwork, tokenLabels: string[]) {
     this.labels = tokenLabels.concat(["[NULL]"]); // for padding token
     this.nn = nn;
@@ -65,21 +66,30 @@ class NeuralNetworkVisualization {
     this.nnMargin = 20;
     this.height = this.nnHeight + this.captionHeight + 2 * this.nnMargin + 100;
 
+    this.status = "paused"; // training, prediction, paused
+    this.buildVisualization();
+  }
+
+  private buildVisualization() {
+    if (this.nnSvg) return; // already built
+
+    const host = d3.select("div#w2v-vis");
+    if (host.empty()) {
+      requestAnimationFrame(() => this.buildVisualization()); // wait for React to mount host
+      return;
+    }
+
     const bottomLineY =
       this.captionHeight + this.nnHeight + 2 * this.nnMargin + 20;
-
-    this.status = "paused"; // training, prediction, paused
-
     const sizeOfText = 24;
 
-    this.nnSvg = d3
-      .select("div#w2v-vis")
+    this.nnSvg = host
       .append("div")
       .append("svg")
       .attr("viewBox", `0 0 ${this.width} ${this.height}`)
       .attr("style", "background-color: #ADD7F6; width:100%; height: auto;");
 
-    this.nnSvg.append("g").node()!.innerHTML = `
+    this.nnSvg.append("g").html(`
       <line x1="${(1 / 5) * this.width - 50}" y1="${bottomLineY - 30}" x2="${
       (4 / 5) * this.width + 50
     }" y2="${bottomLineY - 30}" stroke="black" stroke-width="2"/>
@@ -108,7 +118,7 @@ class NeuralNetworkVisualization {
         <tspan x="0" dy="1.2em" text-anchor="middle"> (training) </tspan>
       </text>
       </g>
-    `;
+    `);
 
     this.textInput = this.nnSvg
       .append("g")
@@ -392,7 +402,10 @@ class NeuralNetworkVisualization {
   }
 
   dispose() {
-    this.nnSvg.remove();
+    if (this.nnSvg) {
+      this.nnSvg.remove();
+      this.nnSvg = undefined;
+    }
   }
 
   predictions = (outputs: number[]) => {
@@ -419,6 +432,10 @@ class NeuralNetworkVisualization {
   };
 
   update(x: string, y1: string, y2: string) {
+    if (!this.nnSvg) {
+      this.buildVisualization();
+      if (!this.nnSvg) return;
+    }
     const sizeOfText = 24;
     const widthOfText = 100;
 

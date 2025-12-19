@@ -1,14 +1,35 @@
 class TextVisualization {
   constructor(sourceText) {
-    document.getElementById("article").innerHTML = sourceText + `<b></b>`; // display text
+    this.sourceText = sourceText;
+    this.article = null;
+    this.init();
+  }
+
+  init() {
+    const article = document.getElementById("article");
+    if (!article) {
+      requestAnimationFrame(() => this.init()); // wait for React to mount
+      return;
+    }
+
+    this.article = article;
+    this.article.innerHTML = this.sourceText + `<b></b>`; // display text
   }
 
   dispose() {
-    document.getElementById("article").innerHTML = "";
+    if (this.article) {
+      this.article.innerHTML = "";
+      this.article = null;
+    }
   }
 
   highlightWords(x, y1, y2) {
-    let corpus = document.querySelector("#article").innerHTML;
+    if (!this.article) {
+      this.init();
+      if (!this.article) return;
+    }
+
+    let corpus = this.article.innerHTML;
     let tmp = corpus.split("<b>");
 
     tmp[0] = tmp[0].replace(/<[^>]*>?/gm, "");
@@ -22,7 +43,7 @@ class TextVisualization {
       tmp[1] = tmp[1].replace(`${y1} ${x} ${y2}`, `<b>${y1} ${x} ${y2}</b>`);
     }
 
-    document.querySelector("#article").innerHTML = tmp[0] + tmp[1];
+    this.article.innerHTML = tmp[0] + tmp[1];
   }
 }
 export { TextVisualization };

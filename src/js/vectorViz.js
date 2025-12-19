@@ -17,6 +17,7 @@ class VectorVisualization {
     this.nn = nn;
 
     this.oneHotSize = this.nn.oneHotSize;
+    this.divPos = null;
 
     this.trace = {
       x: Array(this.oneHotSize).fill(0.0),
@@ -47,15 +48,29 @@ class VectorVisualization {
       },
     };
 
-    this.divPos = document.getElementById("positions");
+    this.initPlot();
+  }
 
+  initPlot() {
+    if (this.divPos) return; // already initialized
+    const host = document.getElementById("positions");
+    if (!host) {
+      requestAnimationFrame(() => this.initPlot()); // wait for React to mount host
+      return;
+    }
+
+    this.divPos = host;
     Plotly.newPlot(this.divPos, [this.trace], this.layout, {
       displayModeBar: false,
     });
   }
 
   dispose() {
-    this.divPos.innerHTML = "";
+    if (this.divPos) {
+      Plotly.purge(this.divPos);
+      this.divPos.innerHTML = "";
+      this.divPos = null;
+    }
   }
 
   runRotation() {

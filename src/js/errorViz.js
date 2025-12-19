@@ -2,7 +2,18 @@ import { Chart } from "chart.js";
 
 class ErrorChart {
   constructor() {
-    this.chart = new Chart(document.getElementById("nn_errors"), {
+    this.chart = null;
+    this.initChart();
+  }
+
+  initChart() {
+    const canvas = document.getElementById("nn_errors");
+    if (!canvas) {
+      requestAnimationFrame(() => this.initChart());
+      return;
+    }
+
+    this.chart = new Chart(canvas, {
       type: "line",
       data: {
         labels: [],
@@ -28,10 +39,17 @@ class ErrorChart {
   }
 
   dispose() {
-    // document.querySelector("#nn_errors>canvas").remove();
+    if (this.chart) {
+      this.chart.destroy();
+      this.chart = null;
+    }
   }
 
   updateCharts(iter, errors) {
+    if (!this.chart) {
+      this.initChart();
+      if (!this.chart) return;
+    }
     this.chart.data.labels.push(iter);
     this.chart.data.datasets.forEach((dataset) => {
       dataset.data.push(errors);
