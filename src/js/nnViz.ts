@@ -34,7 +34,7 @@ interface NeuralNetworkVisualization {
   captionHeight: number;
   nnMargin: number;
   status: string;
-  nnSvg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
+  nnSvg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> | undefined;
   textInput: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
   textHidden: d3.Selection<SVGTextElement, any, any, any>;
   textPrediction: d3.Selection<SVGTextElement, any, any, any>;
@@ -55,7 +55,6 @@ interface NeuralNetworkVisualization {
 }
 
 class NeuralNetworkVisualization {
-  nnSvg?: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
   constructor(nn: NeuralNetwork, tokenLabels: string[]) {
     this.labels = tokenLabels.concat(["[NULL]"]); // for padding token
     this.nn = nn;

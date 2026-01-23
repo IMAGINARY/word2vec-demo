@@ -1,7 +1,14 @@
 import { Word2Vector } from "./w2v.ts";
 import { localize } from "../components/langSelector.jsx";
+import i18next from "i18next";
+import corpora from "./locales/corpora";
 
-window.corpusText = "Select a language to load the corpus text.";
+const currentLang = i18next.resolvedLanguage || i18next.language || "en";
+
+window.corpusText =
+  corpora.filter((d) => d.language === currentLang)[0]?.text ??
+  corpora[0]?.text ??
+  "";
 
 window.onload = () => {
   localize(".translate");

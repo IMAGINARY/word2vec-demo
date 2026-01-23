@@ -18,9 +18,14 @@ export function App() {
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-3">
-            <div>
-              <LangSelector />
-              <CorpusSelector />
+            <div className="panel panel-primary">
+              <div className="panel-heading translate" data-i18n="tdSettings">
+                Settings
+              </div>
+              <div className="panel-body" id="panel-settings">
+                <LangSelector />
+                <CorpusSelector />
+              </div>
             </div>
             <TextVisualization />
             <ErrorVisualization />

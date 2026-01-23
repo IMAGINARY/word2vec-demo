@@ -4,6 +4,7 @@ import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import locI18next from "loc-i18next";
 import { Word2Vector } from "../js/w2v.ts";
+import corpora from "../js/locales/corpora";
 
 // Filter here the languages to appear in the UI.
 const langList = locales
@@ -52,9 +53,15 @@ function LangSelector() {
                   .then(() => localize(".translate"))
                   .catch((reason) => {});
 
-                // window.w2v.dispose();
-                // window.w2v = new Word2Vector(i18next.t("corpusText"));
-                // window.w2v.initNetwork();
+                const currentLang = d.isoCode;
+                window.corpusText =
+                  corpora.filter((d) => d.language === currentLang)[0]?.text ??
+                  corpora[0]?.text ??
+                  "";
+
+                window.w2v.dispose();
+                window.w2v = new Word2Vector(window.corpusText);
+                window.w2v.initNetwork();
               }}
             >
               {d.endonym}
