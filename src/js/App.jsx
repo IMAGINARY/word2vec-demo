@@ -3,6 +3,8 @@ import ErrorVisualization from "../components/errorViz";
 import NeuralNetworkVisualization from "../components/nnViz";
 import TextVisualization from "../components/textViz";
 import VectorVisualization from "../components/vectorViz";
+import { LangSelector } from "../components/langSelector";
+import { CorpusSelector } from "../components/corpusSelector";
 
 export function App() {
   const [Lang, setLang] = useState(""); // Language
@@ -16,6 +18,10 @@ export function App() {
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-3">
+            <div>
+              <LangSelector />
+              <CorpusSelector />
+            </div>
             <TextVisualization />
             <ErrorVisualization />
           </div>

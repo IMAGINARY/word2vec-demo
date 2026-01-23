@@ -52,9 +52,9 @@ function LangSelector() {
                   .then(() => localize(".translate"))
                   .catch((reason) => {});
 
-                window.w2v.dispose();
-                window.w2v = new Word2Vector(i18next.t("corpusText"));
-                window.w2v.initNetwork();
+                // window.w2v.dispose();
+                // window.w2v = new Word2Vector(i18next.t("corpusText"));
+                // window.w2v.initNetwork();
               }}
             >
               {d.endonym}

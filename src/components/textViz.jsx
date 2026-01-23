@@ -8,7 +8,8 @@ export default function TextVisualization(sourceText) {
     <div className="panel panel-primary">
       <div className="panel-heading translate" data-i18n="tdCorpus"></div>
       <div className="panel-body" id="panel-corpus">
-        <LangSelector />
+        {/* <LangSelector /> */}
+
         <div id="article"></div>
         <hr />
 
