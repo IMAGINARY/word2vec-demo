@@ -1,0 +1,53 @@
+.nnviz-svg {
+  background-color: #add7f6;
+  width: 100%;
+  height: auto;
+}
+
+.nnVizCaption {
+  font-size: 24px;
+  fill: #000000;
+  text-anchor: middle;
+}
+
+.input-text text,
+.prediction-text text,
+.output-text text,
+.hidden-text text {
+  font-size: 24px;
+  fill: #000000;
+  text-anchor: middle;
+}
+
+.input-neuron-label text {
+  text-anchor: end;
+  alignment-baseline: middle;
+  font-size: 18px;
+  fill: #000000;
+}
+
+.output-neuron-label text {
+  text-anchor: start;
+  alignment-baseline: middle;
+  font-size: 18px;
+  fill: #000000;
+}
+
+.edge line {
+  stroke: #aaaaaa; /* default color for edges */
+  stroke-width: 3;
+}
+
+.nnviz-tooltip {
+  padding: 5px;
+  background-color: #84dcc6;
+  color: #ffffff;
+  font-size: 16px;
+  position: absolute;
+  z-index: 10;
+  visibility: hidden;
+}
+
+.hidden2-neuron-percentage rect {
+  fill: #ff7f0e;
+}
