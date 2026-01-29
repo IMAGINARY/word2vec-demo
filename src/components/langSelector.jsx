@@ -34,7 +34,7 @@ function LangSelector() {
   return (
     <span id="langSelector" className="dropdown">
       <button
-        className="btn btn-secondary dropdown-toggle"
+        className="btn btn-primary dropdown-toggle"
         type="button"
         data-bs-toggle="dropdown"
       >

@@ -82,9 +82,9 @@ class NeuralNetworkVisualization {
       this.captionHeight + this.nnHeight + 2 * this.nnMargin + 20;
 
     this.nnSvg = host
-      .append("div")
       .append("svg")
       .attr("viewBox", `0 0 ${this.width} ${this.height}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
       .classed("nnviz-svg", true);
 
     this.nnSvg
@@ -377,6 +377,7 @@ class NeuralNetworkVisualization {
     }
   }
 
+  /* Get the top prediction from each output section */
   predictions = (outputs: number[]) => {
     const sections = [
       outputs.slice(0, this.oneHotSize),

@@ -39,6 +39,7 @@ class VectorVisualization {
     };
 
     this.layout = {
+      autosize: true,
       dragmode: true,
       margin: { l: 0, r: 0, b: 0, t: 0 },
       scene: {
@@ -62,6 +63,7 @@ class VectorVisualization {
     this.divPos = host;
     Plotly.newPlot(this.divPos, [this.trace], this.layout, {
       displayModeBar: false,
+      responsive: true,
     });
   }
 

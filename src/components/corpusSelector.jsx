@@ -28,7 +28,7 @@ function CorpusSelector() {
   return (
     <span id="corpusSelector" className="dropdown">
       <button
-        className="btn btn-secondary dropdown-toggle"
+        className="btn btn-primary dropdown-toggle"
         type="button"
         data-bs-toggle="dropdown"
       >

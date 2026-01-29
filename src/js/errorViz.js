@@ -61,7 +61,7 @@ class ErrorChart {
 const visualizeError = (iter, total_iter, errors) => {
   document.querySelector(
     "#w2v_epoch"
-  ).textContent = `epoch: ${iter} / ${total_iter}, error: ${errors}`;
+  ).textContent = `epoch: ${iter} / ${total_iter}, error: ${errors.toFixed(8)}`;
 };
 
 export { ErrorChart, visualizeError };
