@@ -90,14 +90,7 @@ export function App() {
               <div className="panel-body button-group" id="panel-settings">
                 <LangSelector />
                 <CorpusSelector />
-                <button
-                  type="button"
-                  className="btn btn-primary translate"
-                  onClick={() => setIsModalOpen(true)}
-                  data-i18n="about"
-                >
-                  About
-                </button>
+
                 <button
                   type="button"
                   className="btn btn-primary translate"
@@ -105,6 +98,15 @@ export function App() {
                   data-i18n="info"
                 >
                   Info
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-primary translate"
+                  onClick={() => setIsModalOpen(true)}
+                  data-i18n="about"
+                >
+                  About
                 </button>
               </div>
             </div>
@@ -121,15 +123,17 @@ export function App() {
           </div>
         </div>
       </div>
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={null}
-      >
-        <div dangerouslySetInnerHTML={{ __html: aboutHtml }} />
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <div
+          className="panel panel-primary"
+          dangerouslySetInnerHTML={{ __html: aboutHtml }}
+        />
       </Modal>
-      <Modal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} title={null}>
-        <div dangerouslySetInnerHTML={{ __html: infoHtml }} />
+      <Modal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)}>
+        <div
+          className="panel panel-primary"
+          dangerouslySetInnerHTML={{ __html: infoHtml }}
+        />
       </Modal>
     </>
   );

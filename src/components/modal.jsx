@@ -1,9 +1,7 @@
-export default function Modal({ isOpen, onClose, title, children }) {
+export default function Modal({ isOpen, onClose, children }) {
   if (!isOpen) {
     return null;
   }
-
-  const titleId = title ? "modal-title" : undefined;
 
   return (
     <div className="modal-overlay" onClick={onClose} role="presentation">
@@ -12,8 +10,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
-        aria-label={title ? undefined : "Modal"}
+        aria-label="Modal"
       >
         <button
           type="button"
@@ -23,10 +20,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
         >
           X
         </button>
-        <div className="modal-content">
-          {title ? <h2 id={titleId}>{title}</h2> : null}
-          {children}
-        </div>
+        <div className="modal-content">{children}</div>
       </div>
     </div>
   );

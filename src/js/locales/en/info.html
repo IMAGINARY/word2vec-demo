@@ -1,57 +1,74 @@
-<h4>Creating a word embedding</h4>
+<div class="panel-heading">
+  <h3 class="panel-title">From words to vectors</h3>
+</div>
 
-<p>
-  This exhibit shows a technique called word2vec (word to vector) that assigns a
-  vector to each word in a text. The idea is that words that appear in similar
-  contexts should have similar vectors. We call this a word embedding, as it
-  "embeds" words into a vector space.
-</p>
-<p>
-  In real life, the text would be a large collection of texts (a corpus) such as
-  all Wikipedia, or all the books from a digitized library. The vectors would
-  have normally a high dimension (like 300 - 500 components or more). In this
-  toy example, however, we use only a few words that appear several times in
-  just about a dozen sentences. Our vectors will be of dimension 3, which is
-  easy to visualize.
-</p>
+<div class="panel-body">
+  <p>
+    This exhibit shows a technique called <b>word2vec</b> (word to vector) that
+    assigns a vector to each word in a text. The idea is that words that appear
+    in similar contexts should have similar vectors. We call this a
+    <b>word embedding</b>, as it "embeds" words into a vector space.
+  </p>
 
-<p>
-  In order to create the embedding, we use the following method. We set up a
-  neural network to solve a context prediction task: for each word in the
-  corpus, try to guess the previous and the next words (that is, guess the
-  context). Thus, we set a neural network with an input layer as big as the
-  number of different words in our corpus. The output layer is twice as big, as
-  it encodes the previous and the next word. Inside the neural network, we set
-  up a hidden layer with three neurons (for a longer corpus, the hidden layer
-  could be much larger).
-</p>
+  <p>
+    In real life, the text would be a large collection of texts (a corpus) such
+    as all Wikipedia, or all the books from a digitized library. The vectors
+    would have normally a high dimension (like 300 - 500 components or more). In
+    this toy example, however, we use only a few words that appear several times
+    in just about a dozen sentences. Our vectors will be of dimension 3, which
+    is easy to visualize.
+  </p>
 
-<p>
-  We train the neural network by taking each time three consecutive words from
-  the corpus. We feed the central word to the input layer (using one-hot
-  encoding: one in the correct position, zero otherwise), the signal propagates
-  to the hidden layer, and from there to the output layer, which produces a
-  guess for the previous and next words. Comparing the output with the correct
-  answer, we compute the error and backpropagate it to update the weights. Then
-  we take the next three words from the corpus, and so on, until we have gone
-  through the whole text several times.
-</p>
-<p>
-  In this process, the hidden layer can be read as a 3-dimensional encoding of
-  the input word. With time, similar words will have similar encodings, because
-  they predict similar contexts.
-</p>
+  <p>
+    In order to create the embedding, we use the following method. We set up a
+    <b>neural network</b> to solve a context prediction task: for each word in
+    the corpus, try to guess the previous and the next words (that is, guess the
+    context). Thus, we set a neural network with an <b>input layer</b> as big as
+    the number of different words in our corpus. The <b>output layer</b> is
+    twice as big, as it encodes the previous and the next word. Inside the
+    neural network, we set up a <b>hidden layer</b> with three neurons (for a
+    longer corpus, the hidden layer could be much larger).
+  </p>
 
-<p>
-  You can see in the three-dimensional grapical representation that similar
-  words (i.e. words that appear in similar contexts) will cluster together. This
-  is purely from the context, the machine does not know the definitions or
-  meanings of the words.
-</p>
+  <p>
+    We <b>train</b> the neural network by taking each time three consecutive
+    words from the corpus. We feed the central word to the input layer (using
+    one-hot encoding: one in the correct position, zero otherwise), the signal
+    propagates to the hidden layer, and from there to the output layer, which
+    produces a guess for the previous and next words. Comparing the output with
+    the correct answer, we compute the error and backpropagate it to update the
+    <b>weights</b>. Then we take the next three words from the corpus, and so
+    on, until we have gone through the whole text several times.
+  </p>
+  <p>
+    In this process, the hidden layer can be read as a 3-dimensional encoding of
+    the input word. With time, similar words will have similar encodings,
+    because they predict similar contexts.
+  </p>
+  <div class="alert alert-info">
+    Select "Train" to start the training process. You can pause it at any time
+    by selecting "Pause". Select "Reset" to reset the neural network weights and
+    start over. Observe the error decreasing over time, and how the words move
+    in the 3D space.
+  </div>
 
-<p>
-  With a more sophisticated version of this (having a larger context window and
-  some other tricks), we could use the next-word-prediction feature to make a
-  chat-bot. Given some words as input, it keeps predicting the next word to
-  compose an answer.
-</p>
+  <p>
+    You can see in the three-dimensional grapical representation that
+    semantically similar words (i.e. words that appear in similar contexts) will
+    cluster together. This is purely from the context, the machine does not know
+    the definitions or meanings of the words.
+  </p>
+
+  <div class="alert alert-info">
+    Select a different corpus, especially in a language you don't speak. Can you
+    guess in advance which words are semantically similar, just from the
+    contexts?
+  </div>
+
+  <p>
+    With a more sophisticated version of this (having a larger context window
+    and some other tricks), we could use the next-word-prediction feature to
+    make a chat-bot. Given some words as input, it keeps predicting the next
+    word to compose an answer.
+  </p>
+</div>
