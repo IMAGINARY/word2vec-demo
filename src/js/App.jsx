@@ -12,6 +12,12 @@ import {
   about_en,
   about_es,
   about_fr,
+  about_uk,
+  info_de,
+  info_en,
+  info_es,
+  info_fr,
+  info_uk,
 } from "../js/locales/text-assets";
 
 export function App() {
@@ -22,6 +28,8 @@ export function App() {
   const [TrainingData, setTrainingData] = useState(""); // Training data pairs {x,y} x is a word, y is an array of two words.
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [aboutHtml, setAboutHtml] = useState("");
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [infoHtml, setInfoHtml] = useState("");
 
   useEffect(() => {
     const aboutAssets = {
@@ -29,28 +37,39 @@ export function App() {
       de: about_de,
       es: about_es,
       fr: about_fr,
+      uk: about_uk,
+    };
+    const infoAssets = {
+      en: info_en,
+      de: info_de,
+      es: info_es,
+      fr: info_fr,
+      uk: info_uk,
     };
 
-    const loadAboutHtml = async (lang) => {
+    const loadHtml = async (lang, assets, setHtml) => {
       const normalizedLang = (lang || "").toLowerCase();
       const primaryLang = normalizedLang.split("-")[0];
-      const aboutUrl =
-        aboutAssets[normalizedLang] ||
-        aboutAssets[primaryLang] ||
-        aboutAssets.en;
+      const assetUrl =
+        assets[normalizedLang] || assets[primaryLang] || assets.en;
 
       try {
-        const response = await fetch(aboutUrl);
+        const response = await fetch(assetUrl);
         const html = await response.text();
-        setAboutHtml(html);
+        setHtml(html);
       } catch (error) {
-        setAboutHtml("");
+        setHtml("");
       }
     };
 
-    void loadAboutHtml(i18next.resolvedLanguage || i18next.language || "en");
+    const loadAllHtml = (lang) => {
+      void loadHtml(lang, aboutAssets, setAboutHtml);
+      void loadHtml(lang, infoAssets, setInfoHtml);
+    };
+
+    loadAllHtml(i18next.resolvedLanguage || i18next.language || "en");
     const handleLanguageChange = (nextLang) => {
-      void loadAboutHtml(nextLang);
+      loadAllHtml(nextLang);
     };
 
     i18next.on("languageChanged", handleLanguageChange);
@@ -73,10 +92,19 @@ export function App() {
                 <CorpusSelector />
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-primary translate"
                   onClick={() => setIsModalOpen(true)}
+                  data-i18n="about"
                 >
                   About
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary translate"
+                  onClick={() => setIsInfoOpen(true)}
+                  data-i18n="info"
+                >
+                  Info
                 </button>
               </div>
             </div>
@@ -99,6 +127,9 @@ export function App() {
         title={null}
       >
         <div dangerouslySetInnerHTML={{ __html: aboutHtml }} />
+      </Modal>
+      <Modal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} title={null}>
+        <div dangerouslySetInnerHTML={{ __html: infoHtml }} />
       </Modal>
     </>
   );

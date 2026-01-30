@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import i18next from "i18next";
 import type { NeuralNetwork } from "./NeuralNetwork";
 
 const scaleNeuron = d3
@@ -50,6 +51,14 @@ interface NeuralNetworkVisualization {
   nnOutputTraining: d3.Selection<SVGCircleElement, any, any, any>;
   nnOutputLabels: d3.Selection<SVGTextElement, any, any, any>;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+  captionInput: d3.Selection<SVGTextElement, unknown, HTMLElement, any>;
+  captionHiddenLine1: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  captionHiddenLine2: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  captionOutputLine1: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  captionOutputLine2: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  captionGoalLine1: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  captionGoalLine2: d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+  handleLanguageChange: ((lang: string) => void) | undefined;
   dispose(): void;
   update(x: string, y1: string, y2: string): void;
 }
@@ -96,32 +105,60 @@ class NeuralNetworkVisualization {
       .attr("stroke", "black")
       .attr("stroke-width", 2);
 
-    this.nnSvg.append("g").html(`
-      <g transform="translate(${(1 / 5) * this.width}, ${bottomLineY})">
-      <text class="nnVizCaption">Input</text>
-      </g>
+    this.captionInput = this.nnSvg
+      .append("g")
+      .attr("transform", `translate(${(1 / 5) * this.width}, ${bottomLineY})`)
+      .append("text")
+      .classed("nnVizCaption", true);
 
-      <g transform="translate(${(2 / 5) * this.width}, ${bottomLineY})">
-      <text class="nnVizCaption">
-        <tspan x="0" text-anchor="middle">Hidden layer</tspan> 
-        <tspan x="0" dy="1.2em" text-anchor="middle"> (vector) </tspan>
-      </text>
-      </g>
+    const hiddenText = this.nnSvg
+      .append("g")
+      .attr("transform", `translate(${(2 / 5) * this.width}, ${bottomLineY})`)
+      .append("text")
+      .classed("nnVizCaption", true);
+    this.captionHiddenLine1 = hiddenText
+      .append("tspan")
+      .attr("x", 0)
+      .attr("text-anchor", "middle");
+    this.captionHiddenLine2 = hiddenText
+      .append("tspan")
+      .attr("x", 0)
+      .attr("dy", "1.2em")
+      .attr("text-anchor", "middle");
 
-      <g transform="translate(${(3 / 5) * this.width}, ${bottomLineY})">
-      <text class="nnVizCaption">
-        <tspan x="0" text-anchor="middle">Output</tspan> 
-        <tspan x="0" dy="1.2em" text-anchor="middle"> (prediction) </tspan>
-      </text>
-      </g>
-      
-      <g transform="translate(${(4 / 5) * this.width}, ${bottomLineY})">
-      <text class="nnVizCaption">
-        <tspan x="0" text-anchor="middle">Goal</tspan> 
-        <tspan x="0" dy="1.2em" text-anchor="middle"> (training) </tspan>
-      </text>
-      </g>
-    `);
+    const outputText = this.nnSvg
+      .append("g")
+      .attr("transform", `translate(${(3 / 5) * this.width}, ${bottomLineY})`)
+      .append("text")
+      .classed("nnVizCaption", true);
+    this.captionOutputLine1 = outputText
+      .append("tspan")
+      .attr("x", 0)
+      .attr("text-anchor", "middle");
+    this.captionOutputLine2 = outputText
+      .append("tspan")
+      .attr("x", 0)
+      .attr("dy", "1.2em")
+      .attr("text-anchor", "middle");
+
+    const goalText = this.nnSvg
+      .append("g")
+      .attr("transform", `translate(${(4 / 5) * this.width}, ${bottomLineY})`)
+      .append("text")
+      .classed("nnVizCaption", true);
+    this.captionGoalLine1 = goalText
+      .append("tspan")
+      .attr("x", 0)
+      .attr("text-anchor", "middle");
+    this.captionGoalLine2 = goalText
+      .append("tspan")
+      .attr("x", 0)
+      .attr("dy", "1.2em")
+      .attr("text-anchor", "middle");
+
+    this.updateCaptions();
+    this.handleLanguageChange = () => this.updateCaptions();
+    i18next.on("languageChanged", this.handleLanguageChange);
 
     this.textInput = this.nnSvg
       .append("g")
@@ -375,6 +412,21 @@ class NeuralNetworkVisualization {
       this.nnSvg.remove();
       this.nnSvg = undefined;
     }
+
+    if (this.handleLanguageChange) {
+      i18next.off("languageChanged", this.handleLanguageChange);
+      this.handleLanguageChange = undefined;
+    }
+  }
+
+  private updateCaptions() {
+    this.captionInput.text(i18next.t("nnVizInput"));
+    this.captionHiddenLine1.text(i18next.t("nnVizHiddenLayer"));
+    this.captionHiddenLine2.text(i18next.t("nnVizHiddenVector"));
+    this.captionOutputLine1.text(i18next.t("nnVizOutput"));
+    this.captionOutputLine2.text(i18next.t("nnVizOutputPrediction"));
+    this.captionGoalLine1.text(i18next.t("nnVizGoal"));
+    this.captionGoalLine2.text(i18next.t("nnVizGoalTraining"));
   }
 
   /* Get the top prediction from each output section */

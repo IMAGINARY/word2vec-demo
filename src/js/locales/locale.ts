@@ -6,6 +6,7 @@ type Locale = {
       title: string;
       hello: string;
       about: string;
+      info: string;
       intro: string;
       Clear: string;
       Pointer: string;
