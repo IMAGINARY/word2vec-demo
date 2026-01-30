@@ -6,9 +6,10 @@ const es = {
   resource: {
     translation: {
       title: "De palabras a vectores",
+      language: "Idioma",
       tdCorpus: "Datos de entrenamiento (Corpus)",
       tdSettings: "Configuración",
-      ErrorOverEpoch: "Error sobre Epoch",
+      ErrorOverEpoch: "Error en cada pasada",
       VectorSpace: "Espacio vectorial (capa oculta)",
       nnVisualization: "Red neuronal",
       nnVizInput: "Entrada",
@@ -18,6 +19,8 @@ const es = {
       nnVizOutputPrediction: "(predicción)",
       nnVizGoal: "Objetivo",
       nnVizGoalTraining: "(entrenamiento)",
+      epoch: "Pasada",
+      error: "Error",
       train: "Entrenar",
       pause: "Pausar",
       reset: "Reiniciar",

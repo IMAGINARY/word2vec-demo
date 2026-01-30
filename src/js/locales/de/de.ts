@@ -6,9 +6,10 @@ const de = {
   resource: {
     translation: {
       title: "Words to vectors",
+      language: "Sprache",
       tdCorpus: "Training data (Corpus)",
       tdSettings: "Einstellungen",
-      ErrorOverEpoch: "Error over Epoch",
+      ErrorOverEpoch: "Error over passes",
       VectorSpace: "Vector space (hidden layer)",
       nnVisualization: "Neural Network",
       nnVizInput: "Eingabe",
@@ -18,6 +19,8 @@ const de = {
       nnVizOutputPrediction: "(Vorhersage)",
       nnVizGoal: "Ziel",
       nnVizGoalTraining: "(Training)",
+      epoch: "Pass",
+      error: "Fehler",
       about: "Über",
       corpus: "Korpus",
       info: "Info",

@@ -3,6 +3,8 @@
 </div>
 
 <div class="panel-body">
+  <h2>What happens here?</h2>
+
   <p>
     This exhibit shows a technique called <b>word2vec</b> (word to vector) that
     assigns a vector to each word in a text. The idea is that words that appear
@@ -18,6 +20,8 @@
     in just about a dozen sentences. Our vectors will be of dimension 3, which
     is easy to visualize.
   </p>
+
+  <h2>How does it work?</h2>
 
   <p>
     In order to create the embedding, we use the following method. We set up a
@@ -40,10 +44,14 @@
     <b>weights</b>. Then we take the next three words from the corpus, and so
     on, until we have gone through the whole text several times.
   </p>
+
+  <h2>Where is the embedding?</h2>
+
   <p>
     In this process, the hidden layer can be read as a 3-dimensional encoding of
-    the input word. With time, similar words will have similar encodings,
-    because they predict similar contexts.
+    the input word. This can be displayed as a point in 3D space. With time,
+    similar words will have similar encodings, because they predict similar
+    contexts.
   </p>
   <div class="alert alert-info">
     Select "Train" to start the training process. You can pause it at any time
@@ -51,6 +59,8 @@
     start over. Observe the error decreasing over time, and how the words move
     in the 3D space.
   </div>
+
+  <h2>So this teaches the machine the meaning of words?</h2>
 
   <p>
     You can see in the three-dimensional grapical representation that

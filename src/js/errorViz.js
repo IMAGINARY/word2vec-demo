@@ -1,4 +1,5 @@
 import { Chart } from "chart.js";
+import i18next from "i18next";
 
 class ErrorChart {
   constructor() {
@@ -19,7 +20,7 @@ class ErrorChart {
         labels: [],
         datasets: [
           {
-            label: "Error",
+            label: "",
             data: [],
             backgroundColor: "#ADD7F6",
             borderColor: "#0275D8",
@@ -33,6 +34,9 @@ class ErrorChart {
           line: {
             tension: 0,
           },
+        },
+        legend: {
+          display: false,
         },
       },
     });
@@ -59,9 +63,13 @@ class ErrorChart {
 }
 
 const visualizeError = (iter, total_iter, errors) => {
+  const epochLabel = i18next.t("epoch");
+  const errorLabel = i18next.t("error");
   document.querySelector(
     "#w2v_epoch"
-  ).textContent = `epoch: ${iter} / ${total_iter}, error: ${errors.toFixed(8)}`;
+  ).textContent = `${epochLabel}: ${iter} / ${total_iter}, ${errorLabel}: ${errors.toFixed(
+    8
+  )}`;
 };
 
 export { ErrorChart, visualizeError };

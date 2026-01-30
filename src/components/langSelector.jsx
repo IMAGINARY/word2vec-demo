@@ -39,6 +39,9 @@ function LangSelector() {
         data-bs-toggle="dropdown"
       >
         <img src={iconTranslate} style={{ height: "1.4em" }} />
+        <span className="translate" data-i18n="language">
+          Language
+        </span>
       </button>
 
       <ul className="dropdown-menu">

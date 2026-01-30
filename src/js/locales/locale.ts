@@ -4,10 +4,13 @@ type Locale = {
   resource: {
     translation: Partial<{
       title: string;
+      language: string;
       hello: string;
       about: string;
       info: string;
       intro: string;
+      epoch: string;
+      error: string;
       Clear: string;
       Pointer: string;
       Export: string;

@@ -6,9 +6,10 @@ const en = {
   resource: {
     translation: {
       title: "Words to vectors",
+      language: "Мова",
       tdCorpus: "Training data (Corpus)",
       tdSettings: "Налаштування",
-      ErrorOverEpoch: "Error over Epoch",
+      ErrorOverEpoch: "Error over passes",
       VectorSpace: "Vector space (hidden layer)",
       nnVisualization: "Neural Network",
       nnVizInput: "Вхід",
@@ -18,6 +19,8 @@ const en = {
       nnVizOutputPrediction: "(прогноз)",
       nnVizGoal: "Ціль",
       nnVizGoalTraining: "(навчання)",
+      epoch: "Pass",
+      error: "Error",
       train: "Train",
       pause: "Pause",
       reset: "Reset",
