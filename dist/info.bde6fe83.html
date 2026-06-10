@@ -1,0 +1,93 @@
+<div class=panel-heading>
+  <h3 class=panel-title>Von Wörtern zu Vektoren</h3>
+</div>
+
+<div class=panel-body>
+  <h2>Was passiert hier?</h2>
+
+  <p>
+    Dieses Exponat zeigt eine Technik namens <b>Word2Vec</b> (Word-to-Vector),
+    die jedem Wort in einem Text einen Vektor zuordnet. Dahinter steht die Idee,
+    dass Wörter, die in ähnlichen Kontexten vorkommen, ähnliche Vektoren haben
+    sollten. Wir bezeichnen dies als <b>Wort-Embedding</b>, da Wörter in einen
+    Vektorraum „eingebettet“ werden.
+  </p>
+
+  <p>
+    In der Praxis würde es sich bei dem Text um eine große Textsammlung (ein
+    Korpus) handeln, wie beispielsweise die gesamte Wikipedia oder alle Bücher
+    einer digitalisierten Bibliothek. Die Vektoren hätten normalerweise eine
+    hohe Dimension (etwa 300 bis 500 Komponenten oder mehr). In diesem einfachen
+    Beispiel verwenden wir jedoch nur wenige Wörter, die in etwa einem Dutzend
+    Sätzen mehrmals vorkommen. Unsere Vektoren haben eine Dimension von 3, was
+    leicht vorstellbar ist.
+  </p>
+
+  <h2>Wie funktionert es?</h2>
+
+  <p>
+    Um die Einbettung zu erstellen, verwenden wir die folgende Methode. Wir
+    richten ein <b>neuronales Netzwerk</b> ein, um eine Kontextvorhersageaufgabe
+    zu lösen: Für jedes Wort im Korpus versuchen wir, das vorhergehende und das
+    nachfolgende Wort zu erraten (das heißt, den Kontext zu erraten). Daher
+    richten wir ein neuronales Netzwerk mit einer <b>Eingabeschicht</b> ein, die
+    so groß ist wie die Anzahl der verschiedenen Wörter in unserem Korpus. Die
+    <b>Ausgabeschicht</b> ist doppelt so groß, da sie sowohl das vorherige als
+    auch das nächste Wort kodiert. Innerhalb des neuronalen Netzes richten wir
+    eine <b>verborgene Schicht</b> (Hidden Layer) mit drei Neuronen ein (bei
+    einem längeren Korpus könnte die verborgene Schicht wesentlich größer sein).
+  </p>
+
+  <p>
+    Wir <b>trainieren</b> das neuronale Netzwerk, indem wir jeweils drei
+    aufeinanderfolgende Wörter aus dem Korpus nehmen. Wir geben das mittlere
+    Wort in die Eingabeschicht ein (unter Verwendung der One-Hot-Kodierung: eine
+    Eins an der richtigen Position, ansonsten eine Null), das Signal wird an die
+    verborgene Schicht weitergeleitet und von dort an die Ausgabeschicht, die
+    eine Vorhersage für das vorherige und das nächste Wort liefert. Indem wir
+    die Ausgabe mit der richtigen Antwort vergleichen, berechnen wir den Fehler
+    und leiten ihn rückwärts weiter, um die <b>Gewichte</b> zu aktualisieren.
+    Dann nehmen wir die nächsten drei Wörter aus dem Korpus und so weiter, bis
+    wir den gesamten Text mehrmals durchlaufen haben.
+  </p>
+
+  <h2>Wo ist die Einbettung?</h2>
+
+  <p>
+    In diesem Prozess lässt sich die verborgene Schicht als dreidimensionale
+    Kodierung des Eingabeworts interpretieren. Diese kann als Punkt im
+    dreidimensionalen Raum dargestellt werden. Mit der Zeit weisen ähnliche
+    Wörter ähnliche Kodierungen auf, da sie ähnliche Kontexte vorhersagen.
+  </p>
+  <div class="alert alert-info">
+    Wähle „Trainieren“, um den Trainingsvorgang zu starten. Du kannst ihn
+    jederzeit durch Auswahl von „Pause“ unterbrechen. Wähle „Neustart“, um die
+    Gewichte des neuronalen Netzes zurückzusetzen und von vorne zu beginnen.
+    Beobachte, wie der Fehler im Laufe der Zeit abnimmt und wie sich die Wörter
+    im 3D-Raum bewegen.
+  </div>
+
+  <h2>So lernt die Maschine also die Bedeutung von Wörtern?</h2>
+
+  <p>
+    An der dreidimensionalen grafischen Darstellung lässt sich erkennen, dass
+    sich semantisch ähnliche Wörter (d. h. Wörter, die in ähnlichen Kontexten
+    vorkommen) zu Clustern zusammenfinden. Dies ergibt sich ausschließlich aus
+    dem Kontext; die Maschine kennt weder die Definitionen noch die Bedeutungen
+    der Wörter.
+  </p>
+
+  <div class="alert alert-info">
+    Wähle einen anderen Korpus aus, vor allem in einer Sprache, die du nicht
+    sprichst. Kannst du allein anhand des Kontexts im Voraus erraten, welche
+    Wörter semantisch ähnlich sind?
+  </div>
+
+  <p>
+    Mit einer weiterentwickelten Version dieses Ansatzes (mit einem größeren
+    Kontextfenster und einigen weiteren Kniffen) könnten wir die Funktion zur
+    Vorhersage des nächsten Wortes nutzen, um einen Chatbot zu erstellen. Bei
+    Eingabe bestimmter Wörter sagt er das nächste Wort voraus, um eine Antwort
+    zu formulieren.
+  </p>
+</div>
