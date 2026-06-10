@@ -3,15 +3,14 @@ import { useEffect, useState } from "react";
 import i18next from "i18next";
 import corpora from "../js/locales/corpora";
 import { Word2Vector } from "../js/w2v.ts";
+import { getCurrentLanguage, normalizeLanguage } from "./langSelector";
 
 function CorpusSelector() {
-  const [lang, setLang] = useState(
-    i18next.resolvedLanguage || i18next.language || "en"
-  );
+  const [lang, setLang] = useState(getCurrentLanguage());
 
   useEffect(() => {
     const handleLanguageChange = (nextLang) => {
-      setLang(nextLang);
+      setLang(normalizeLanguage(nextLang));
     };
 
     i18next.on("languageChanged", handleLanguageChange);
@@ -43,6 +42,7 @@ function CorpusSelector() {
               href="#"
               className="dropdown-item"
               onClick={(ev) => {
+                ev.preventDefault();
                 window.w2v.dispose();
                 window.w2v = new Word2Vector(corpora[d.index].text);
                 window.w2v.initNetwork();

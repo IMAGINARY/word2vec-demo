@@ -3,7 +3,7 @@ import ErrorVisualization from "../components/errorViz";
 import NeuralNetworkVisualization from "../components/nnViz";
 import TextVisualization from "../components/textViz";
 import VectorVisualization from "../components/vectorViz";
-import { LangSelector } from "../components/langSelector";
+import { LangSelector, getCurrentLanguage, localize } from "../components/langSelector";
 import { CorpusSelector } from "../components/corpusSelector";
 import Modal from "../components/modal";
 import i18next from "i18next";
@@ -21,6 +21,7 @@ import {
 } from "../js/locales/text-assets";
 
 export function App() {
+  const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
   const [Lang, setLang] = useState(""); // Language
   const [Corpus, setCorpus] = useState(""); // Text corpus
   const [Tokens, setTokens] = useState(""); // Tokenization of corpus. Array of words.
@@ -30,6 +31,21 @@ export function App() {
   const [aboutHtml, setAboutHtml] = useState("");
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [infoHtml, setInfoHtml] = useState("");
+
+  useEffect(() => {
+    localize(".translate");
+  }, [currentLang]);
+
+  useEffect(() => {
+    const handleLanguageChange = (nextLang) => {
+      setCurrentLang(nextLang);
+    };
+
+    i18next.on("languageChanged", handleLanguageChange);
+    return () => {
+      i18next.off("languageChanged", handleLanguageChange);
+    };
+  }, []);
 
   useEffect(() => {
     const aboutAssets = {
@@ -67,7 +83,7 @@ export function App() {
       void loadHtml(lang, infoAssets, setInfoHtml);
     };
 
-    loadAllHtml(i18next.resolvedLanguage || i18next.language || "en");
+    loadAllHtml(currentLang);
     const handleLanguageChange = (nextLang) => {
       loadAllHtml(nextLang);
     };
@@ -76,7 +92,7 @@ export function App() {
     return () => {
       i18next.off("languageChanged", handleLanguageChange);
     };
-  }, []);
+  }, [currentLang]);
 
   return (
     <>

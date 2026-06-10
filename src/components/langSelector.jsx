@@ -12,23 +12,45 @@ const langList = locales
   .filter((d) => ["en", "de", "fr", "es", "uk"].includes(d.isoCode));
 
 const iconTranslate = new URL("../img/translate.svg", import.meta.url).href;
+const supportedLanguages = langList.map(({ isoCode }) => isoCode);
 
 const resour = locales.reduce(
   (acc, { isoCode, resource }) => ({ ...acc, ...{ [isoCode]: resource } }),
   {},
 );
 
+function normalizeLanguage(lang) {
+  const normalizedLang = (lang || "").toLowerCase();
+  const primaryLang = normalizedLang.split("-")[0];
+
+  if (supportedLanguages.includes(normalizedLang)) {
+    return normalizedLang;
+  }
+
+  if (supportedLanguages.includes(primaryLang)) {
+    return primaryLang;
+  }
+
+  return "en";
+}
+
 const i18nextOptions = {
-  supportedLngs: langList.map(({ isoCode }) => isoCode),
+  supportedLngs: supportedLanguages,
   fallbackLng: "en",
-  // fallbackLng: 'false',
+  lng: normalizeLanguage(
+    typeof navigator !== "undefined" ? navigator.language : undefined,
+  ),
   debug: true,
   resources: resour,
 };
 
-void i18next.use(LanguageDetector).init(i18nextOptions);
+const initI18n = i18next.use(LanguageDetector).init(i18nextOptions);
 const localize = locI18next.init(i18next);
 const localizeKey = i18next.t;
+
+function getCurrentLanguage() {
+  return normalizeLanguage(i18next.resolvedLanguage || i18next.language || "en");
+}
 
 function LangSelector() {
   return (
@@ -51,12 +73,13 @@ function LangSelector() {
               href="#"
               className="dropdown-item"
               onClick={(ev) => {
+                ev.preventDefault();
                 i18next
                   .changeLanguage(d.isoCode)
                   .then(() => localize(".translate"))
                   .catch((reason) => {});
 
-                const currentLang = d.isoCode;
+                const currentLang = normalizeLanguage(d.isoCode);
                 window.corpusText =
                   corpora.filter((d) => d.language === currentLang)[0]?.text ??
                   corpora[0]?.text ??
@@ -76,4 +99,11 @@ function LangSelector() {
   );
 }
 
-export { LangSelector, localize, localizeKey };
+export {
+  LangSelector,
+  getCurrentLanguage,
+  initI18n,
+  localize,
+  localizeKey,
+  normalizeLanguage,
+};
