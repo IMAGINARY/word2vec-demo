@@ -1,0 +1,94 @@
+<div class="panel-heading">
+  <h3 class="panel-title">Des mots aux vecteurs</h3>
+</div>
+
+<div class="panel-body">
+  <h2>En quoi ça consiste ?</h2>
+
+  <p>
+    Cette exposition présente une technique appelée <b>word2vec</b> (« word to
+    vector », du mot au vecteur) qui attribue un vecteur à chaque mot d'un
+    texte. L'idée est que les mots apparaissant dans des contextes similaires
+    devraient avoir des vecteurs similaires. On parle alors de
+    <b>« word embedding »</b>, traduisible comme « plongement sémantique » ou
+    « encodage des mots » car cela consiste à « encoder » les mots dans un
+    espace vectoriel.
+  </p>
+
+  <p>
+    Dans la réalité, le texte serait un vaste ensemble de textes (un corpus),
+    tel que l'intégralité de Wikipédia ou tous les livres d'une bibliothèque
+    numérisée. Les vecteurs auraient normalement une dimension élevée (par
+    exemple 300 à 500 composantes, voire plus). Dans cet exemple simplifié,
+    cependant, nous n'utilisons que quelques mots qui apparaissent plusieurs
+    fois dans une douzaine de phrases seulement. Nos vecteurs auront une
+    dimension de 3, ce qui est facile à visualiser.
+  </p>
+
+  <h2>Comment ça marche ?</h2>
+
+  <p>
+    Pour créer l'encodage, nous utilisons la méthode suivante. Nous configurons
+    un <b>réseau de neurones</b> afin de résoudre une tâche de prédiction
+    contextuelle : pour chaque mot du corpus, il s'agit d'essayer de deviner le
+    mot précédent et le mot suivant (c'est-à-dire de deviner le contexte). Nous
+    configurons donc un réseau neuronal dont la <b>couche d'entrée</b> est aussi
+    grande que le nombre de mots différents présents dans notre corpus. La
+    <b>couche de sortie</b> est deux fois plus grande, car elle encode le mot
+    précédent et le mot suivant. À l'intérieur du réseau neuronal, nous
+    configurons une <b>couche cachée</b> comportant trois neurones (pour un
+    corpus plus long, la couche cachée pourrait être beaucoup plus grande).
+  </p>
+
+  <p>
+    Nous <b>entraînons</b> le réseau neuronal en prenant à chaque fois trois
+    mots consécutifs du corpus. Nous introduisons le mot central dans la couche
+    d'entrée (en utilisant un encodage « one-hot » : un si le mot est à la bonne
+    position, zéro sinon), le signal se propage vers la couche cachée, puis vers
+    la couche de sortie, qui produit une estimation des mots précédents et
+    suivants. En comparant la sortie avec la réponse correcte, nous calculons
+    l'erreur et la rétropropagons pour mettre à jour les <b>poids</b>. Ensuite, nous
+    prenons les trois mots suivants du corpus, et ainsi de suite, jusqu'à ce que
+    nous ayons parcouru l'intégralité du texte plusieurs fois.
+  </p>
+
+  <h2>Où se situe l’encodage ?</h2>
+
+  <p>
+    Dans ce processus, la couche cachée peut être considérée comme un encodage
+    en trois dimensions du mot d'entrée. Elle peut être représentée sous la
+    forme d'un point dans l'espace 3D. Au fil du temps, des mots similaires
+    auront des encodages similaires, car ils prédisent des contextes similaires.
+  </p>
+  <div class="alert alert-info">
+    Sélectionnez « Entraîner » pour lancer le processus d'entraînement. Vous
+    pouvez le mettre en pause à tout moment en sélectionnant « Pause ».
+    Sélectionnez « Réinitialiser » pour réinitialiser les poids du réseau
+    neuronal et recommencer. Observez la diminution de l'erreur au fil du temps
+    et la façon dont les mots se déplacent dans l'espace 3D.
+  </div>
+
+  <h2>Est-ce que cela apprend aux machines la significations des mots ?</h2>
+
+  <p>
+    Comme vous pouvez le voir sur la représentation graphique en trois
+    dimensions, les mots sémantiquement proches (c'est-à-dire ceux qui
+    apparaissent dans des contextes similaires) se regroupent. Ce phénomène
+    résulte uniquement du contexte ; la machine ne connaît ni les définitions ni
+    les significations des mots.
+  </p>
+
+  <div class="alert alert-info">
+    Sélectionnez un autre corpus, de préférence dans une langue que vous ne
+    parlez pas. Pouvez-vous deviner à l'avance quels mots sont sémantiquement
+    similaires, uniquement à partir des contextes ?
+  </div>
+
+  <p>
+    Avec une version plus sophistiquée de ce système (dotée d'une fenêtre
+    contextuelle plus large et d'autres astuces), nous pourrions utiliser la
+    fonctionnalité de prédiction du mot suivant pour créer un chatbot. À partir
+    de certains mots saisis en entrée, il continue de prédire le mot suivant
+    pour composer une réponse.
+  </p>
+</div>

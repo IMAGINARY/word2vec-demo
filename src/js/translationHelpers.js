@@ -21,7 +21,7 @@ const resourcesGraphs_es = {}; //as { [key: string]: string };
 
 const resour = locales.reduce(
   (acc, { isoCode, resource }) => ({ ...acc, ...{ [isoCode]: resource } }),
-  {}
+  {},
 );
 //  as {
 //   en: { translation: { [key: string]: string } };

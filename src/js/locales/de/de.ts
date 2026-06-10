@@ -1,17 +1,17 @@
-// import Locale from '../locale';
+// import Locale from "../locale";
 
 const de = {
   isoCode: "de",
   endonym: "Deutsch",
   resource: {
     translation: {
-      title: "Words to vectors",
+      title: "Von Wörtern zu Vektoren",
       language: "Sprache",
-      tdCorpus: "Training data (Corpus)",
+      tdCorpus: "Trainingsdaten (Corpus)",
       tdSettings: "Einstellungen",
-      ErrorOverEpoch: "Error over passes",
-      VectorSpace: "Vector space (hidden layer)",
-      nnVisualization: "Neural Network",
+      ErrorOverEpoch: "Fehler über Trainingsdurchläufe",
+      VectorSpace: "Vektorraum (Verborgene Schicht)",
+      nnVisualization: "Neuronales Netz",
       nnVizInput: "Eingabe",
       nnVizHiddenLayer: "Verborgene Schicht",
       nnVizHiddenVector: "(Vektor)",
@@ -19,9 +19,13 @@ const de = {
       nnVizOutputPrediction: "(Vorhersage)",
       nnVizGoal: "Ziel",
       nnVizGoalTraining: "(Training)",
-      epoch: "Pass",
+      epoch: "Durchläufe",
       error: "Fehler",
-      about: "Über",
+      train: "Trainieren",
+      pause: "Pause",
+      reset: "Neustart",
+      step: "Schritt",
+      about: "About",
       corpus: "Korpus",
       info: "Info",
     },

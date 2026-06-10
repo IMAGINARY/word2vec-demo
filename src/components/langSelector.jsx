@@ -9,13 +9,13 @@ import corpora from "../js/locales/corpora";
 // Filter here the languages to appear in the UI.
 const langList = locales
   .map(({ isoCode, endonym }) => ({ isoCode, endonym }))
-  .filter((d) => ["en", "es", "de", "uk"].includes(d.isoCode));
+  .filter((d) => ["en", "de", "fr", "es", "uk"].includes(d.isoCode));
 
 const iconTranslate = new URL("../img/translate.svg", import.meta.url).href;
 
 const resour = locales.reduce(
   (acc, { isoCode, resource }) => ({ ...acc, ...{ [isoCode]: resource } }),
-  {}
+  {},
 );
 
 const i18nextOptions = {
